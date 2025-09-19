@@ -1,0 +1,251 @@
+body {
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  padding: 20px;
+  font-size: 14px;
+}
+
+.welcome-section {
+  text-align: center;
+}
+
+.welcome-section h1 {
+  color: var(--vscode-foreground);
+  font-size: 24px;
+  margin-bottom: 1em;
+  font-weight: bold;
+}
+
+.welcome-section .description {
+  color: var(--vscode-descriptionForeground);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid white;
+  margin: 1.5em;
+  opacity: 0.3;
+}
+
+h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 8px;
+  height: calc(100vh - 90px);
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 1.5em;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.25em;
+  font-weight: bold;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+  gap: 10px;
+}
+
+input,
+select {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.9rem;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+select:focus,
+input:focus {
+  color: var(--vscode-input-activeForeground);
+  border: 1px solid var(--vscode-focusBorder);
+  outline: none;
+}
+
+/* base button */
+button {
+  padding: 8px;
+  height: 32px;
+  gap: 10px;
+  width: fit-content;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-button-background);
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button:hover,
+button:focus,
+button:active {
+  background-color: var(--vscode-button-hoverBackground);
+  border-color: var(--vscode-button-hoverBackground);
+  color: var(--vscode-button-foreground);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+  border-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  background-color: var(--vscode-input-background);
+}
+
+button.warning {
+  background-color: var(--vscode-inputValidation-warningBackground);
+}
+
+/* Button path */
+button svg {
+  width: 18px;
+  height: 18px;
+  color: var(--vscode-button-foreground);
+}
+
+button:hover svg,
+button:focus svg,
+button:active svg {
+  color: var(--vscode-button-foreground);
+}
+
+button:disabled svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.warning svg {
+  color: var(--vscode-inputValidation-warningForeground);
+}
+
+.secondary-button {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-background);
+}
+
+button.secondary-button svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.secondary-button:hover svg,
+button.secondary-button:focus svg,
+button.secondary-button:active svg {
+  color: var(--vscode-button-foreground);
+}
+
+button.secondary-button:disabled svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.secondary-button.warning svg {
+  color: var(--vscode-inputValidation-warningForeground);
+}
+
+/* API Key Status Styles */
+.api-key-status {
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid var(--vscode-widget-border);
+  border-radius: 6px;
+  background-color: var(--vscode-editor-background);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.status-label {
+  font-weight: 500;
+  color: var(--vscode-foreground);
+  font-size: 14px;
+}
+
+.status-indicator {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-success {
+  color: var(--vscode-testing-iconPassed);
+}
+
+.status-error {
+  color: var(--vscode-testing-iconFailed);
+}
+
+.status-loading {
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+}
+
+/* Warning text for API key */
+.warning-text {
+  font-size: 11px;
+  color: var(--vscode-editorWarning-foreground);
+  text-align: center;
+  opacity: 0.9;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Waitlist section styling */
+.waitlist-section {
+  width: 100%;
+}
+
+.waitlist-content {
+  text-align: center;
+}
+
+.waitlist-content h3 {
+  margin-bottom: 8px;
+}
+
+.waitlist-content p {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--vscode-descriptionForeground);
+}

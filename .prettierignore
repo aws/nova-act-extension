@@ -1,0 +1,4 @@
+# Ignore artifacts:
+dist
+out
+public

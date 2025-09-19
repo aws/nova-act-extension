@@ -1,0 +1,43 @@
+.control-bar-container {
+  padding: 16px 16px 4px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  background-color: var(--vscode-sideBarSectionHeader-background);
+  justify-content: space-between;
+}
+
+.control-bar-container .left,
+.control-bar-container .right {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.builder-mode-header {
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--vscode-editor-foreground);
+  margin-right: 16px;
+}
+
+input.control-bar-file-input.unsaved-changed {
+  font-style: italic;
+}
+
+.input-with-menu {
+  display: flex;
+  position: relative;
+}
+
+.load-template-select,
+.file-action {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  gap: 10px;
+  max-width: 176px;
+}

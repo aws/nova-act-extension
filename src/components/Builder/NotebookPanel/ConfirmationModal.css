@@ -1,0 +1,77 @@
+.confirmation-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  background-color: var(--vscode-quickInput-background);
+  border: 1px solid var(--vscode-quickInput-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 400px;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+.confirmation-modal-header {
+  background-color: var(--vscode-quickInputTitle-background);
+  color: var(--vscode-quickInputTitle-foreground);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--vscode-quickInput-border);
+}
+
+.confirmation-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.confirmation-modal-content {
+  padding: 20px;
+  color: var(--vscode-quickInput-foreground);
+  line-height: 1.5;
+}
+
+.confirmation-modal-content p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.confirmation-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  background-color: var(--vscode-quickInput-background);
+  border-top: 1px solid var(--vscode-quickInput-border);
+}
+
+.confirmation-modal-button {
+  min-width: 80px;
+}
+
+.confirmation-modal-button.cancel {
+  background-color: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+}
+
+.confirmation-modal-button.cancel:hover {
+  background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.confirmation-modal-button.ok:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.confirmation-modal-button:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
