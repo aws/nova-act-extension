@@ -1,0 +1,177 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Keep the original container style for backward compatibility */
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100vh - 90px);
+  box-sizing: border-box;
+}
+
+.panel {
+  flex: 1;
+  background-color: var(--vscode-editor-background);
+  border: none;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+input {
+  flex: 1;
+}
+
+input,
+select {
+  box-sizing: border-box;
+  height: 32px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+select:focus,
+input:focus {
+  color: var(--vscode-input-activeForeground);
+  border: 1px solid var(--vscode-focusBorder);
+  outline: none;
+}
+
+/* Ensure proper spacing between elements */
+#mainContainer {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+/* base button */
+button {
+  padding: 8px;
+  height: 32px;
+  gap: 10px;
+  width: fit-content;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-button-background);
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button:hover,
+button:focus,
+button:active {
+  background-color: var(--vscode-button-hoverBackground);
+  border-color: var(--vscode-button-hoverBackground);
+  color: var(--vscode-button-foreground);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+  border-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  background-color: var(--vscode-input-background);
+}
+
+button.warning {
+  background-color: var(--vscode-inputValidation-warningBackground);
+}
+
+/* Button path */
+button svg {
+  width: 18px;
+  height: 18px;
+  color: var(--vscode-button-foreground);
+}
+
+button:hover svg,
+button:focus svg,
+button:active svg {
+  color: var(--vscode-button-foreground);
+}
+
+button:disabled svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.warning svg {
+  color: var(--vscode-inputValidation-warningForeground);
+}
+
+.secondary-button {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-background);
+}
+
+button.secondary-button svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.secondary-button:hover svg,
+button.secondary-button:focus svg,
+button.secondary-button:active svg {
+  color: var(--vscode-button-foreground);
+}
+
+button.secondary-button:disabled svg {
+  color: var(--vscode-input-foreground);
+}
+
+button.secondary-button.warning svg {
+  color: var(--vscode-inputValidation-warningForeground);
+}
+
+.input-with-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+}
+
+.input-with-buttons input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-with-buttons button:not(:last-of-type) {
+  border-radius: 0;
+}
+
+.input-with-buttons button:last-of-type {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

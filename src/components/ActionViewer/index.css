@@ -1,0 +1,310 @@
+.action-viewer {
+  font-family: var(--vscode-font-family);
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  padding: 5px;
+  height: 100vh;
+  overflow: auto;
+}
+
+.action-viewer__loading,
+.action-viewer__error,
+.action-viewer__no-data {
+  padding: 20px;
+  text-align: center;
+  font-family: var(--vscode-font-family);
+}
+
+.action-viewer__loading {
+  color: var(--vscode-foreground);
+}
+
+.action-viewer__error {
+  color: var(--vscode-errorForeground);
+}
+
+.action-viewer__error h3 {
+  margin: 0 0 10px 0;
+}
+
+.action-viewer__error-file {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.action-viewer__no-data {
+  color: var(--vscode-descriptionForeground);
+}
+
+.action-viewer__no-data-file {
+  font-size: 12px;
+}
+
+.action-viewer__header {
+  padding: 15px;
+  background-color: var(--vscode-textBlockQuote-background);
+  border: 1px solid var(--vscode-panel-border);
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+.action-viewer__header h2 {
+  margin: 0 0 10px 0;
+  color: var(--vscode-foreground);
+}
+
+.action-viewer__prompt {
+  font-size: 14px;
+  color: var(--vscode-foreground);
+  font-style: italic;
+}
+
+.action-viewer__file-info,
+.action-viewer__steps-count {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.action-viewer__file-info {
+  margin-top: 10px;
+}
+
+.action-viewer__session-time {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  margin-top: 5px;
+}
+
+.action-viewer__session-id {
+  font-size: 13px;
+  color: var(--vscode-textLink-foreground);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.action-viewer__act-id {
+  font-size: 13px;
+  color: var(--vscode-textLink-foreground);
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.action-viewer__no-steps {
+  padding: 20px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 5px;
+}
+
+.action-step {
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: var(--vscode-editor-background);
+}
+
+/* Override for steps inside action groups */
+.action-group .action-step {
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: var(--vscode-editor-background);
+}
+
+.action-step__title {
+  margin: 0 0 10px 0;
+  color: var(--vscode-foreground);
+}
+
+.action-step__act-id {
+  font-size: 14px;
+  color: var(--vscode-textLink-foreground);
+  font-weight: normal;
+}
+
+.action-step__file-name {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  font-weight: normal;
+}
+
+.action-step__url-container {
+  margin-bottom: 10px;
+}
+
+.action-step__url-label {
+  margin-right: 5px;
+}
+
+.action-step__url {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+  word-break: break-all;
+  display: inline-block;
+}
+
+.action-step__timestamp {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.action-step__image-container {
+  margin-bottom: 10px;
+}
+
+.action-step__image {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 5px;
+}
+
+.action-step__action-container {
+  margin-top: 10px;
+}
+
+.action-step__action-label {
+  margin-bottom: 5px;
+  display: block;
+}
+
+.action-step__action-code {
+  background-color: var(--vscode-textBlockQuote-background);
+  padding: 10px;
+  border-radius: 5px;
+  overflow: auto;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  border: 1px solid var(--vscode-panel-border);
+  color: var(--vscode-foreground);
+}
+/* Content Layout */
+.action-viewer__content {
+  margin-top: 0;
+}
+
+/* Action Group Styles */
+.action-group {
+  margin-bottom: 5px;
+}
+
+.action-group__content {
+  padding-left: 5px;
+}
+
+.action-group__header {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 15px;
+  cursor: pointer;
+  background-color: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  transition: background-color 0.2s ease;
+  border-radius: 6px;
+  margin-bottom: 0;
+}
+
+.action-group__header:hover {
+  background-color: var(--vscode-list-hoverBackground);
+}
+
+.action-group__toggle {
+  margin-right: 12px;
+  margin-top: 2px;
+}
+
+.action-group__arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  color: var(--vscode-foreground);
+  font-size: 14px;
+}
+
+.action-group__arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.action-group__info {
+  flex: 1;
+}
+
+.action-group__title {
+  margin: 0 0 6px 0;
+  color: var(--vscode-foreground);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.action-group__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.action-group__prompt {
+  color: var(--vscode-foreground);
+  font-size: 14px;
+}
+
+.action-group__details {
+  color: var(--vscode-descriptionForeground);
+  font-size: 13px;
+}
+
+.action-group__content {
+  padding-top: 5px;
+}
+
+.action-group__content .action-step {
+  margin-bottom: 5px;
+  padding: 15px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  background-color: var(--vscode-editor-background);
+  margin-left: 0;
+}
+
+/* Controls */
+.action-viewer__controls {
+  margin-top: 5px;
+  display: flex;
+  gap: 10px;
+}
+
+.action-viewer__control-btn {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.action-viewer__control-btn:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.action-viewer__control-btn:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+/* Update existing step styles for grouped view */
+.action-group__content .action-step__title {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.action-group__content .action-step__image {
+  max-width: 100%;
+  max-height: 300px;
+}

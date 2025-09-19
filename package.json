@@ -1,0 +1,359 @@
+{
+  "name": "amazon-nova-act-extension",
+  "displayName": "Nova Act",
+  "description": "AI-powered automation extension for IDE. Generate, debug, and run web automation scripts with natural language commands.",
+  "publisher": "amazonwebservices",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "extensionKind": [
+    "ui"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aws/nova-act-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/aws/nova-act-extension/issues"
+  },
+  "galleryBanner": {
+    "color": "#232F3E",
+    "theme": "dark"
+  },
+  "icon": "resources/logo/nova_browser_128_icon.png",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other",
+    "Debuggers",
+    "Testing",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "nova",
+    "nova-act",
+    "browser",
+    "automation",
+    "testing",
+    "debugging",
+    "ai",
+    "web-automation",
+    "playwright",
+    "web-scraping",
+    "qa-automation"
+  ],
+  "preview": false,
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "npm run watch:extension & npm run watch:webview",
+    "watch:extension": "webpack --watch",
+    "watch:webview": "NODE_ENV=development webpack serve --config webpack.config.js --env target=webview",
+    "package": "NODE_ENV=production webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "prettier": "prettier -c .",
+    "prettier:write": "prettier --write .",
+    "type-check": "tsc --noEmit",
+    "lint": "npm run type-check && eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "npm run test:unit",
+    "test:unit": "npm run compile-tests && npx mocha out/test/utils/**/*.test.js",
+    "test:unit:watch": "npm run compile-tests && npx mocha out/test/utils/**/*.test.js --watch",
+    "test:unit:coverage": "npm run compile-tests && npx nyc --reporter=text --reporter=html mocha out/test/utils/**/*.test.js",
+    "prepublishonly": "npx vsce package",
+    "clean": "rm -rf node_modules && rm -rf out && rm -rf build && rm -rf dist/*",
+    "prepare": "husky install"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "npx prettier --write",
+      "npx eslint --fix"
+    ]
+  },
+  "npm-pretty-much": {
+    "allowUnsafeName": "VSCode packaging does not permit @amzn package prefix"
+  },
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "walkthroughs": [
+      {
+        "id": "novaAgentWalkthrough",
+        "title": "Get Started with the Amazon Nova Act extension",
+        "description": "Learn how to use Nova Act for browser automation",
+        "steps": [
+          {
+            "id": "setupAPIKey",
+            "title": "Set up your Nova Act API key",
+            "media": {
+              "markdown": "resources/walkthrough/step1_api_key.md"
+            },
+            "completionEvents": [
+              "onCommand:nova-agent-vs-code-ext.setApiKey"
+            ]
+          },
+          {
+            "id": "setupCodeAssitant",
+            "title": "Use Github Copilot Code Participants to generate Nova Act workflows",
+            "media": {
+              "markdown": "resources/walkthrough/step2_code_assistant.md"
+            }
+          },
+          {
+            "id": "debugNovaAct",
+            "title": "Use the Builder to edit Nova Act workflows",
+            "media": {
+              "markdown": "resources/walkthrough/step3_builder_mode.md"
+            },
+            "completionEvents": [
+              "onCommand:nova-agent-vs-code-ext.showBuilderMode"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "novaAgentKiroWalkthrough",
+        "title": "Get Started with the Amazon Nova Act extension in Kiro",
+        "description": "Learn how to use Nova Act for browser automation in Kiro IDE",
+        "steps": [
+          {
+            "id": "kiroAPIKey",
+            "title": "Set up your Nova Act API key",
+            "media": {
+              "markdown": "resources/walkthrough/step1_api_key.md"
+            }
+          },
+          {
+            "id": "kiroAIAssistant",
+            "title": "Use Kiro AI for Code Generation",
+            "description": "Leverage Kiro's built-in AI assistant to generate Nova Act workflows. Simply describe what you want to automate and let Kiro help you build the perfect script.",
+            "media": {
+              "markdown": "resources/walkthrough/step2_code_assistant.md"
+            }
+          },
+          {
+            "id": "debugNovaActKiro",
+            "title": "Use the Builder to edit Nova Act workflows in Kiro",
+            "media": {
+              "markdown": "resources/walkthrough/step3_builder_mode.md"
+            }
+          }
+        ]
+      },
+      {
+        "id": "novaAgentGenericWalkthrough",
+        "title": "Get Started with the Amazon Nova Act extension in Kiro",
+        "description": "Learn how to use Nova Act for browser automation",
+        "steps": [
+          {
+            "id": "genericSetupAPIKey",
+            "title": "Set up your Nova Act API key",
+            "media": {
+              "markdown": "resources/walkthrough/step1_api_key.md"
+            },
+            "completionEvents": [
+              "onCommand:nova-agent-vs-code-ext.setApiKey"
+            ]
+          },
+          {
+            "id": "genericDebugNovaAct",
+            "title": "Use the Builder to edit Nova Act workflows",
+            "media": {
+              "markdown": "resources/walkthrough/step3_builder_mode.md"
+            },
+            "completionEvents": [
+              "onCommand:nova-agent-vs-code-ext.showBuilderMode"
+            ]
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "nova-agent-vs-code-ext.openWalkthrough",
+        "title": "Nova Act: Start Walkthrough"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.showMenu",
+        "title": "Nova Act: Menu"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.viewNovaActStepDetails",
+        "title": "Nova Act: View Step Details"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.updateOrInstallWheel",
+        "title": "Nova Act: Update or Install Nova Act Wheel"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.showBuilderMode",
+        "title": "Nova Act: Builder Mode"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.setApiKey",
+        "title": "Nova Act: Set API Key"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.openActionViewer",
+        "title": "Nova Act: Open Action Viewer"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.getNovaActVersion",
+        "title": "Nova Act: Get Nova Act Version"
+      }
+    ],
+    "views": {
+      "nova-agent-vs-code-ext-activitybar": [
+        {
+          "type": "webview",
+          "id": "nova-agent-vs-code-ext.sidebar",
+          "name": "Nova Act extension",
+          "icon": "resources/logo/nova_browser_128_icon.png"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nova-agent-vs-code-ext-activitybar",
+          "title": "Nova Act",
+          "icon": "resources/logo/logo.svg"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "python",
+        "extensions": [
+          ".py"
+        ]
+      }
+    ],
+    "keybindings": [],
+    "chatParticipants": [
+      {
+        "id": "nova-agent-vs-code-ext.nova-act",
+        "fullName": "Nova Act Chat Participants",
+        "name": "novaAct",
+        "description": "What can I create for you?",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "learn",
+            "description": "Learn how to use Nova Act for browser automation"
+          },
+          {
+            "name": "shopping",
+            "description": "Generate shopping automation workflows"
+          },
+          {
+            "name": "extract",
+            "description": "Extract data from web pages"
+          },
+          {
+            "name": "search",
+            "description": "Search and navigate web content"
+          },
+          {
+            "name": "qa",
+            "description": "Generate QA test automation scripts"
+          },
+          {
+            "name": "formfilling",
+            "description": "Automate form filling workflows"
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Nova Act",
+      "properties": {
+        "novaAct.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Nova Act status bar item"
+        }
+      }
+    },
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "nova-agent-vs-code-ext.showMenu",
+          "when": "resourceExtname == .py",
+          "group": "2_workspace"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "nova-agent-vs-code-ext.showMenu",
+          "when": "resourceLangId == python",
+          "group": "2_workspace"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "20.x",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
+    "@types/sinon": "^17.0.4",
+    "@types/vscode": "^1.94.0",
+    "@types/vscode-webview": "^1.57.5",
+    "@types/which": "^3.0.4",
+    "@types/mocha": "^10.0.8",
+    "glob": "^11.0.0",
+    "mocha": "^10.8.2",
+    "nyc": "^17.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "2.22.0",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-sonarjs": "^3.0.4",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "eslint-plugin-unicorn": "^55.0.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "globals": "^16.3.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-refresh": "^0.17.0",
+    "react-refresh-typescript": "^2.0.10",
+    "sinon": "^21.0.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.101.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^4.15.2"
+  },
+  "dependencies": {
+    "@monaco-editor/loader": "^1.5.0",
+    "bufferutil": "^4.0.9",
+    "lodash": "^4.17.21",
+    "monaco-editor": "^0.52.2",
+    "utf-8-validate": "^6.0.5",
+    "which": "^5.0.0",
+    "ws": "^8.18.3"
+  }
+}

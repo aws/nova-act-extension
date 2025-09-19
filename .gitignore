@@ -1,0 +1,20 @@
+# Build outputs
+out/
+dist/
+build/
+*.vsix
+
+# Dependencies
+node_modules/
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# IDE files
+.vscode-test/
+.DS_Store
+**/.DS_Store
+
+# External version tracking (internal use only)
+.external-version

@@ -1,0 +1,222 @@
+/* Cell Controls */
+.cell-overlay-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: none;
+  gap: 4px;
+  z-index: 10;
+  transition: opacity 0.2s ease;
+}
+
+.notebook-cell:hover .cell-overlay-controls {
+  display: flex;
+}
+
+.cell-overlay-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.cell-overlay-btn {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.cell-overlay-btn:hover {
+  transform: scale(1.1);
+}
+
+.nova-start-btn {
+  background-color: rgba(45, 45, 45, 0.9) !important;
+  color: var(--vscode-testing-iconPassed) !important;
+  border: 1px solid var(--vscode-testing-iconPassed) !important;
+}
+
+.nova-start-btn:hover {
+  background-color: rgba(76, 175, 80, 0.2) !important;
+  color: var(--vscode-testing-iconPassed) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Dropdown menu styles for action popups */
+.debug-action-menu {
+  position: fixed;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
+  z-index: 1000;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.debug-menu-header {
+  padding: 8px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--vscode-menu-border);
+  color: var(--vscode-menu-foreground);
+  background-color: var(--vscode-menu-background);
+}
+
+.debug-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--vscode-menu-selectionForeground);
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--vscode-menu-selectionBackground);
+  border: 1px solid var(--vscode-menu-border);
+}
+
+.debug-menu-item:hover {
+  background-color: var(--vscode-list-hoverBackground);
+  color: var(--vscode-menu-selectionForeground);
+}
+
+.debug-menu-description {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--vscode-menu-foreground);
+  border-top: 1px solid var(--vscode-menu-border);
+  background-color: var(--vscode-menu-background);
+}
+
+/* Long-running cell indicator */
+.cell-long-running .cell-sidebar {
+  border-left: 3px solid var(--vscode-progressBar-background);
+}
+
+.cell-long-running .cell-main {
+  background-color: var(--vscode-progressBar-background);
+}
+
+.cell-error .cell-sidebar {
+  border-left: 3px solid var(--vscode-testing-iconFailed);
+}
+
+.cell-error .cell-output {
+  color: var(--vscode-testing-iconFailed);
+}
+
+.cell-editor {
+  display: flex;
+  position: relative;
+  padding-top: 2px;
+}
+
+.cell-editor .monaco-editor-container {
+  border: 1px solid var(--vscode-editorWidget-border);
+}
+
+.cell-editor.selected .monaco-editor-container {
+  border: 1px solid var(--vscode-panelTitle-activeBorder);
+}
+
+.monaco-editor-container {
+  width: 100%;
+  min-height: 32px;
+  overflow: hidden;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 8px;
+}
+
+/* Ensure Monaco editor uses reduced line height */
+.monaco-editor-container .monaco-editor .view-lines .view-line {
+  line-height: 18px !important;
+}
+
+.monaco-editor-container:focus-within {
+  border-color: var(--vscode-editorLineNumber-activeForeground);
+  box-shadow: 0 0 0 1px #666666;
+}
+
+.cell-monaco-editor {
+  width: 100%;
+  min-height: 32px;
+  height: 32px;
+  border: 1px solid var(--vscode-editor-compositionBorder);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.port-conflict-menu {
+  position: fixed;
+  background-color: var(--vscode-sideBar-background);
+  border: 1px solid var(--vscode-sideBar-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 0;
+  font-size: 13px;
+}
+
+.port-conflict-menu-header {
+  background-color: var(--vscode-sideBarSectionHeader-background);
+  color: var(--vscode-sideBarSectionHeader-foreground);
+  padding: 8px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--vscode-sideBar-border);
+  border-radius: 4px 4px 0 0;
+}
+
+.port-conflict-menu-section {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+}
+
+.port-conflict-menu-section:last-of-type {
+  border-bottom: none;
+}
+
+.port-conflict-menu-title {
+  color: var(--vscode-sideBar-foreground);
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.port-conflict-command-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 3px;
+  padding: 6px 8px;
+  margin: 4px 0;
+}
+
+.port-conflict-command-item code {
+  color: var(--vscode-editor-foreground);
+  background-color: var(--vscode-editor-background);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  flex: 1;
+}
+
+.port-conflict-menu-item {
+  padding: 8px 12px;
+}
+
+.notebook-run-select-container {
+  position: relative;
+}
+
+.notebook-run-select-display {
+  display: flex;
+}
+
+.view-output {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  cursor: pointer;
+}

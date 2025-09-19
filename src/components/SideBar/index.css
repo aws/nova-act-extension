@@ -1,0 +1,47 @@
+.action-button {
+  width: 100%;
+  min-width: 24px;
+  gap: 10px;
+  padding: 4px 2px;
+  height: 32px;
+}
+
+.builder-mode-with-templates {
+  width: 100%;
+}
+
+.inline-buttons {
+  display: flex;
+}
+
+.left-btn {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.right-btn {
+  width: 32px;
+  max-width: inherit;
+  min-width: 32px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.right-btn.expanded svg {
+  transform: rotate(180deg);
+}
+
+.template-container {
+  max-height: 250px;
+  overflow-y: scroll;
+  border-top: none;
+  gap: 10px;
+  display: grid;
+  padding-top: 10px;
+}
+
+.template-button {
+  padding: 8px 0;
+  height: fit-content;
+  width: 100%;
+}

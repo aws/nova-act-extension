@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "changes": [
+    {
+      "type": "Added",
+      "description": "Initial Release of Nova Act Extension"
+    }
+  ]
+}

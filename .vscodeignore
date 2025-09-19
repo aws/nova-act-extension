@@ -1,0 +1,27 @@
+# Allowlist approach - exclude everything, then include what we need
+# ---------
+
+# Ignore everything by default
+**/**
+
+# Ignore parent directories (workspace support)
+../**
+../../**
+
+# Include essential files
+!package.json
+!README.**
+!CHANGELOG.md
+!LICENSE*
+
+# Include compiled bundles (but exclude source maps)
+!dist/*.js
+!dist/*.LICENSE.txt
+
+# Include resources
+!resources/logo/*
+!resources/walkthrough/*
+!docs/**
+
+# Include Python scripts needed at runtime
+!src/scripts/*.py
