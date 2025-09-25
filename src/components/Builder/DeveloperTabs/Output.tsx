@@ -80,7 +80,7 @@ export const Output = () => {
     const lastOutput = outputToDisplay?.at(-1);
     if (!lastOutput) return false;
     const o = lastOutput.toLowerCase();
-    return o.includes('startfailed') || (o.includes('start') && o.includes('failed'));
+    return o.includes('startfailed');
   };
 
   const getStartFailedMessage = () => {

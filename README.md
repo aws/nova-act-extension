@@ -34,9 +34,11 @@ The Nova Act extension transforms how you build with [Amazon Nova Act](https://g
 
 ### Chat-to-Script Generation: Start With a Conversation
 
-Describe your automation needs in natural language and get execution-ready agent scripts in minutes. Instead of starting from scratch with boilerplate code, simply tell the extension what you need.
+Describe your automation needs in natural language to our @novaAct Copilot Chat participant, and get execution-ready agent scripts in minutes. Instead of starting from scratch with boilerplate code, simply tell the extension what you need.
 
 For instance: "I need an agent that logs into a customer portal, searches for unresolved tickets, and updates their status based on completion criteria." The extension generates a functional script that handles authentication flow, navigation, search functionality, and status updates—giving you a solid foundation to build on.
+
+⚙️ Note: This feature requires GitHub Copilot and may not be availalble in some IDEs. To set it up, see [Copilot Quickstart](https://docs.github.com/en/copilot/get-started/quickstart?tool=vscode). To configure model access, see [Configuring access in GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-ai-models/configure-access-to-ai-models)
 
 <p align="center">
   <img src="resources/walkthrough/step2_chat.gif" width="75%">
@@ -55,6 +57,18 @@ This modular approach means you can develop incrementally, adding cells, reorder
   <br/>
   <em>Step-by-Step Builder Mode</em>
 </p>
+
+#### Iterating in Notebook Cells
+
+When working interactively in a notebook, you can call `nova.act()` multiple times within the same NovaAct session. Each NovaAct session corresponds to a single browser session.
+
+If you want to start a fresh browser session, you can either:
+
+Call `nova.stop()` followed by `nova.start()`, or
+
+Use the notebook’s Restart Notebook button (top right) to tear down the current session and start clean.
+
+💡 Tip: You rarely need to restart unless you want a brand-new browser session. In most workflows, you can call nova.act() multiple times without issue. The main exception is when you **Run All Cells** — this will attempt to create a second NovaAct instance, which isn’t supported in the Nova Act extension. If that happens, click Restart Notebook to reset.
 
 ### Live Debugging: Watch Your Agent Think and Act
 

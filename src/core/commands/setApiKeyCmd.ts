@@ -12,9 +12,9 @@ export async function setApiKey(context?: vscode.ExtensionContext): Promise<bool
   logger.debug('setApiKey: Function called');
 
   const apiKey = await vscode.window.showInputBox({
-    prompt: 'Enter your Nova Act API key',
+    prompt: 'Enter your Nova Act API key from nova.amazon.com/act',
     password: true,
-    placeHolder: 'Your Nova Act API key will be stored securely',
+    placeHolder: 'e.g. 00000000-0000-0000-0000-000000000000',
     validateInput: (value: string) => {
       const trimmed = value.trim();
       if (!value || trimmed.length === 0) {

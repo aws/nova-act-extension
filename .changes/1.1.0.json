@@ -1,0 +1,9 @@
+{
+  "changes": [
+    {
+      "description": "Various quality of life changes, including better README instructions, and troubleshooting steps. Q: What time is it when the clock strikes 13? A: Time to get a new clock.",
+      "type": "Changed"
+    }
+  ],
+  "version": "1.1.0"
+}

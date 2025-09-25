@@ -110,7 +110,7 @@ export const ControlBar = () => {
         </select>
       </div>
       <div className="right">
-        <Tooltip content={'Restart notebook'} position="left">
+        <Tooltip content={'Restart Notebook'} position="left">
           <button
             onClick={() => setShowConfirmationModal(true)}
             className="secondary-button"
@@ -137,7 +137,9 @@ export const ControlBar = () => {
         isOpen={showConfirmationModel}
         onConfirm={handleRestart}
         onCancel={() => setShowConfirmationModal(false)}
-        confirmationText={'Are you sure you want to refresh the extension?'}
+        confirmationText={
+          'Are you sure you want to restart the notebook? This will tear down any running NovaAct instance.'
+        }
       />
       <ConfirmationModal
         isOpen={showClearConfirmation}

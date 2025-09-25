@@ -3,7 +3,7 @@
   "displayName": "Nova Act",
   "description": "AI-powered automation extension for IDE. Generate, debug, and run web automation scripts with natural language commands.",
   "publisher": "amazonwebservices",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "extensionKind": [
     "ui"
@@ -128,14 +128,6 @@
             "title": "Set up your Nova Act API key",
             "media": {
               "markdown": "resources/walkthrough/step1_api_key.md"
-            }
-          },
-          {
-            "id": "kiroAIAssistant",
-            "title": "Use Kiro AI for Code Generation",
-            "description": "Leverage Kiro's built-in AI assistant to generate Nova Act workflows. Simply describe what you want to automate and let Kiro help you build the perfect script.",
-            "media": {
-              "markdown": "resources/walkthrough/step2_code_assistant.md"
             }
           },
           {
