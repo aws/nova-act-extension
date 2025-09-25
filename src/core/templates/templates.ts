@@ -23,8 +23,8 @@ nova = NovaAct(
 nova.start()`,
     `# Add your nova.act(<prompt>) statement here
 nova.act("Click the Learn More button. Then, return the title and publication date of the blog.")`,
-    `# Running nova.stop will close the browser and end the Nova Act session.
-# Uncomment the following line to mark the end of the Nova Act execution.
+    `# Leaving nova.stop() commented keeps NovaAct session running.
+# To stop a NovaAct instance, press "Restart Notebook" (top-right) or uncomment nova.stop() - note this also shuts down the browser instantiated by NovaAct so subsequent nova.act() calls will fail.
 # nova.stop()`,
   ],
 };

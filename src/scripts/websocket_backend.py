@@ -9,6 +9,7 @@ import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from enum import Enum
 from queue import Empty, Queue
+
 from websockets.sync.server import ServerConnection, serve
 
 
@@ -101,7 +102,7 @@ def worker_loop():
                             send_json(
                                 {
                                     "type": "stderr",
-                                    "data": f"Another NovaAct instance is already running. Please stop it before starting a new one.\n",
+                                    "data": f"Another NovaAct instance is already running. Please stop it before starting a new one, or click the 'Restart Notebook' button in the top-right corner of Builder Mode.\n",
                                     "cellId": cell_id,
                                     "success": success,
                                 }
