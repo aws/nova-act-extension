@@ -171,6 +171,9 @@ export const NotebookCell: React.FC<NotebookCellProps> = ({
         case 'fileSaved':
         case 'chromeDevToolsResponse':
         case 'agentActivity':
+        case 'pythonProcessReloaded':
+        case 'getPreferenceValue':
+        case 'setPreferenceValue':
           // These messages are handled by NotebookPanel, not individual cells
           break;
 

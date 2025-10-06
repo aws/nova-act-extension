@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
+import { extractBoundingBoxes } from '../../core/utils/actionViewerBrowserUtils';
 import {
   createActionStep,
   extractSessionAndActIds,
@@ -331,6 +332,30 @@ describe('ActionViewerProviderUtils Tests', () => {
       assert.strictEqual(result.steps[0]?.fileName, 'test_calls.json');
     });
 
+    it('should prioritize request.prompt over other prompt sources', () => {
+      const jsonData = [
+        {
+          kwargs: {
+            task: 'Task from kwargs',
+          },
+          request: {
+            prompt: 'Task from request.prompt',
+            agentRunCreate: {
+              id: 'act999',
+              task: 'Task from agentRunCreate',
+            },
+          },
+          response: {},
+        },
+      ];
+
+      const result = parseCallsJsonData(jsonData, '/path/test_calls.json', false);
+
+      assert.ok(result);
+      assert.strictEqual(result.prompt, 'Task from request.prompt');
+      assert.strictEqual(result.actId, 'act999');
+    });
+
     it('should return null for empty array', () => {
       const result = parseCallsJsonData([], '/path/test.json', false);
       assert.strictEqual(result, null);
@@ -402,6 +427,77 @@ describe('ActionViewerProviderUtils Tests', () => {
 
       const result = findCorrespondingJsonFile(htmlFile);
       assert.strictEqual(result, jsonFile);
+    });
+  });
+
+  describe('extractBoundingBoxes', () => {
+    it('should extract click action bounding boxes', () => {
+      const actionData = 'agentClick("Click on <box>100,200,300,400</box> button")';
+      const result = extractBoundingBoxes(actionData);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]?.type, 'click');
+      assert.strictEqual(result[0]?.x1, 200);
+      assert.strictEqual(result[0]?.y1, 100);
+      assert.strictEqual(result[0]?.x2, 400);
+      assert.strictEqual(result[0]?.y2, 300);
+    });
+
+    it('should extract type action bounding boxes with text', () => {
+      const actionData = 'agentType("hello world", "Type in <box>50,60,150,160</box> input field")';
+      const result = extractBoundingBoxes(actionData);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]?.type, 'type');
+      assert.strictEqual(result[0]?.text, 'hello world');
+      assert.strictEqual(result[0]?.x1, 60);
+      assert.strictEqual(result[0]?.y1, 50);
+      assert.strictEqual(result[0]?.x2, 160);
+      assert.strictEqual(result[0]?.y2, 150);
+    });
+
+    it('should extract scroll action bounding boxes', () => {
+      const actionData = 'agentScroll("down", "Scroll <box>0,0,800,600</box> area")';
+      const result = extractBoundingBoxes(actionData);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0]?.type, 'scroll');
+      assert.strictEqual(result[0]?.text, 'down');
+      assert.strictEqual(result[0]?.x1, 0);
+      assert.strictEqual(result[0]?.y1, 0);
+      assert.strictEqual(result[0]?.x2, 600);
+      assert.strictEqual(result[0]?.y2, 800);
+    });
+
+    it('should extract multiple bounding boxes from mixed actions', () => {
+      const actionData = `
+        agentClick("Click <box>10,20,30,40</box>")
+        agentType("test", "Type in <box>50,60,70,80</box>")
+        agentScroll("up", "Scroll <box>100,110,120,130</box>")
+      `;
+      const result = extractBoundingBoxes(actionData);
+
+      assert.strictEqual(result.length, 3);
+      assert.strictEqual(result[0]?.type, 'click');
+      assert.strictEqual(result[1]?.type, 'type');
+      assert.strictEqual(result[2]?.type, 'scroll');
+    });
+
+    it('should return empty array for action data without bounding boxes', () => {
+      const actionData = 'someOtherAction("no boxes here")';
+      const result = extractBoundingBoxes(actionData);
+      assert.strictEqual(result.length, 0);
+    });
+
+    it('should handle malformed bounding box coordinates', () => {
+      const actionData = 'agentClick("Click <box>invalid,coords</box>")';
+      const result = extractBoundingBoxes(actionData);
+      assert.strictEqual(result.length, 0);
+    });
+
+    it('should handle empty action data', () => {
+      const result = extractBoundingBoxes('');
+      assert.strictEqual(result.length, 0);
     });
   });
 });

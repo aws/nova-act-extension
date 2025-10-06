@@ -156,7 +156,10 @@ export function parseCallsJsonData(
     const actId: string = (agentRunCreate?.id as string) || path.basename(filePath, '_calls.json');
 
     const prompt: string =
-      (agentRunCreate?.task as string) || (kwargs?.task as string) || 'No prompt available';
+      (request?.prompt as string) ||
+      (agentRunCreate?.task as string) ||
+      (kwargs?.task as string) ||
+      'No prompt available';
 
     const fileName: string = path.basename(filePath);
 

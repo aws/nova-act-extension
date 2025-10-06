@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { CLEAR_ALL_PREFERENCE_KEY } from '../../../constants';
 import { useAgentMessages } from '../../../core/context/AgentMessagesContext';
 import { useCells } from '../../../core/context/CellsContext';
 import { useFile } from '../../../core/context/FileContext';
@@ -22,6 +23,7 @@ import {
   countLines,
   createRunId,
   fetchChromeDevToolsUrl,
+  getPreference,
 } from '../../../core/utils/builderModeUtils';
 import { splitPythonCode } from '../../../core/utils/splitPythonCode';
 import {
@@ -79,6 +81,8 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     deleteAllCells,
   } = useCells();
 
+  const [clearDontRemind, setClearDontRemind] = useState(false);
+
   const { setFileContent, setFileLocation, setHasUnsavedChanges } = useFile();
 
   const { addAgentMessage } = useAgentMessages();
@@ -91,6 +95,13 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     current: 0,
     total: 0,
   });
+  const [runAllAfterPythonRestart, setRunAllAfterPythonRestart] = useState(false);
+  useEffect(() => {
+    if (runAllAfterPythonRestart) {
+      if (cells.length > 0) runAllCells();
+      setRunAllAfterPythonRestart(false);
+    }
+  }, [runAllAfterPythonRestart]);
 
   const notebookContainerRef = useRef<HTMLDivElement>(null);
   const cellCompletionCallbacks = useRef<Map<string, (success: boolean) => void>>(new Map());
@@ -167,15 +178,31 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
           // Forward agent activity messages to DevToolsPanel
           addAgentMessage(msg.data);
           break;
+        case 'pythonProcessReloaded':
+          setRunAllAfterPythonRestart(true);
+          break;
 
         default:
           logger.debug(`Unknown message type: ${JSON.stringify(msg)}`);
       }
     };
-
     window.addEventListener('message', messageHandler);
     return () => window.removeEventListener('message', messageHandler);
   }, []);
+
+  useEffect(() => {
+    getPreference(CLEAR_ALL_PREFERENCE_KEY).then((value) => setClearDontRemind(value));
+  }, []);
+
+  const handleClearClick = () => {
+    if (clearDontRemind) {
+      deleteAllCells();
+      addCell({});
+      setShowClearConfirmation(false);
+      return;
+    }
+    setShowClearConfirmation(true);
+  };
 
   // Keep cellsRef in sync with cells state
   useEffect(() => {
@@ -258,6 +285,34 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
   const handleFileSaved = (msg: { type: 'fileSaved'; location: string }) => {
     setHasUnsavedChanges(false);
     setFileLocation(msg.location);
+  };
+
+  const restartPythonAndRunAll = (): void => {
+    if (!builderModeVscodeApi) {
+      // Running outside VS Code webview. Communication will not work.
+      return;
+    }
+    if (browserAlreadyStarted.current === false) {
+      runAllCells();
+      return;
+    }
+
+    // Reset browser view, cells
+    for (const [_, cell] of cells.entries()) {
+      updateCell(cell.id, (oldCell: Cell) => ({
+        ...oldCell,
+        status: 'idle',
+      }));
+    }
+
+    // Reset dev tools
+    setDevToolsUrl('');
+    browserAlreadyStarted.current = false;
+
+    builderModeVscodeApi.postMessage({
+      command: 'restartPythonProcess',
+      restart: true,
+    });
   };
 
   const loadFileContent = (msg: LoadFileMessage): void => {
@@ -567,7 +622,7 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
                     });
                     return;
                   }
-                  setShowClearConfirmation(true);
+                  handleClearClick();
                   setHasUnsavedChanges(true);
                 }}
                 aria-label="Clear all cells"
@@ -579,11 +634,18 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
           <RunSelector
             stopExecution={stopExecution}
             runAllState={runAllState}
-            runAllCells={runAllCells}
+            restartPythonAndRunAll={restartPythonAndRunAll}
           />
           <ConfirmationModal
             isOpen={showClearConfirmation}
+            dontRemind={clearDontRemind}
+            setDontRemind={setClearDontRemind}
             onConfirm={() => {
+              builderModeVscodeApi.postMessage({
+                command: 'setPreference',
+                key: CLEAR_ALL_PREFERENCE_KEY,
+                value: clearDontRemind,
+              });
               deleteAllCells();
               addCell({});
               setShowClearConfirmation(false);

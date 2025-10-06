@@ -1,10 +1,17 @@
-import { type ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useEffect, useState } from 'react';
 
+import { RESTART_NOTEBOOK_PREFERENCE_KEY } from '../../../constants';
 import { useCells } from '../../../core/context/CellsContext';
 import { useFile } from '../../../core/context/FileContext';
 import { templates } from '../../../core/templates/templates';
-import { captureScriptLoadedTemplate } from '../../../core/utils/builderModeUtils';
-import { OpenFolderIcon, RestartIcon, SaveIcon, SettingsIcon } from '../../../core/utils/svg';
+import { captureScriptLoadedTemplate, getPreference } from '../../../core/utils/builderModeUtils';
+import {
+  LockIcon,
+  OpenFolderIcon,
+  RestartIcon,
+  SaveIcon,
+  SettingsIcon,
+} from '../../../core/utils/svg';
 import { builderModeVscodeApi } from '../../../core/utils/vscodeApi';
 import logger from '../../webviewLogger';
 import { ConfirmationModal } from '../NotebookPanel/ConfirmationModal';
@@ -13,13 +20,19 @@ import './index.css';
 
 export const ControlBar = () => {
   const [showConfirmationModel, setShowConfirmationModal] = useState(false);
-  const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
-  const { cells, addCell, addCells, deleteAllCells } = useCells();
+  const [restartDontRemind, setRestartDontRemind] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const { cells, addCells, deleteAllCells } = useCells();
   const { fileLocation, hasUnsavedChanges, setHasUnsavedChanges } = useFile();
 
   const fileName = fileLocation?.split('/').at(-1) ?? 'untitled.py';
   const fileInputValue = `${fileName}${hasUnsavedChanges ? ' *' : ''}`;
+
+  useEffect(() => {
+    getPreference(RESTART_NOTEBOOK_PREFERENCE_KEY).then((value) => setRestartDontRemind(value));
+  }, []);
 
   const handleRestart = () => {
     logger.debug(`Restart requested - verifying if a cell is running`);
@@ -54,6 +67,15 @@ export const ControlBar = () => {
       location: fileLocation,
     });
     setHasUnsavedChanges(false);
+  };
+
+  const handleRestartClick = () => {
+    if (restartDontRemind) {
+      handleRestart();
+      setShowConfirmationModal(false);
+      return;
+    }
+    setShowConfirmationModal(true);
   };
 
   const onLoadTemplate = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -112,22 +134,20 @@ export const ControlBar = () => {
       <div className="right">
         <Tooltip content={'Restart Notebook'} position="left">
           <button
-            onClick={() => setShowConfirmationModal(true)}
+            onClick={handleRestartClick}
             className="secondary-button"
             aria-label="Restart Notebook"
           >
             <RestartIcon />
           </button>
         </Tooltip>
-        <Tooltip content={'Set API Key'} position="left">
+        <Tooltip content={'Nova Act settings'} position="left">
           <button
             onClick={() => {
-              builderModeVscodeApi.postMessage({
-                command: 'setApiKey',
-              });
+              setShowSettings(!showSettings);
             }}
             className="secondary-button"
-            aria-label="Set API key"
+            aria-label="Nova Act settings"
           >
             <SettingsIcon />
           </button>
@@ -135,22 +155,39 @@ export const ControlBar = () => {
       </div>
       <ConfirmationModal
         isOpen={showConfirmationModel}
-        onConfirm={handleRestart}
+        dontRemind={restartDontRemind}
+        setDontRemind={setRestartDontRemind}
+        onConfirm={() => {
+          builderModeVscodeApi.postMessage({
+            command: 'setPreference',
+            key: RESTART_NOTEBOOK_PREFERENCE_KEY,
+            value: restartDontRemind,
+          });
+          handleRestart();
+          setShowConfirmationModal(false);
+        }}
         onCancel={() => setShowConfirmationModal(false)}
         confirmationText={
           'Are you sure you want to restart the notebook? This will tear down any running NovaAct instance.'
         }
       />
-      <ConfirmationModal
-        isOpen={showClearConfirmation}
-        onConfirm={() => {
-          deleteAllCells();
-          addCell({});
-          setShowClearConfirmation(false);
-        }}
-        onCancel={() => setShowClearConfirmation(false)}
-        confirmationText={'Are you sure you want to clear all cells? This cannot be undone.'}
-      />
+      {showSettings && (
+        <div className="settings-panel">
+          <div className="settings-panel-title">Nova Act Settings</div>
+          <button
+            className="secondary-button settings-button"
+            onClick={() => {
+              builderModeVscodeApi.postMessage({
+                command: 'setApiKey',
+              });
+              setShowSettings(false);
+            }}
+          >
+            <LockIcon />
+            Set API key
+          </button>
+        </div>
+      )}
     </div>
   );
 };

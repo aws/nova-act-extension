@@ -4,11 +4,11 @@ export function _getBuilderModeWebviewContent(
   webview: vscode.Webview,
   context: vscode.ExtensionContext
 ): string {
-  const isDev = context.extensionMode === vscode.ExtensionMode.Development;
+  const isDevelopment = process.env.NODE_ENV !== 'production';
   const extensionUri = context.extensionUri;
 
   // If it's dev mode, we link to the localhost bundle so we get HMR
-  const reactScriptUri = isDev
+  const reactScriptUri = isDevelopment
     ? 'http://localhost:3000/BuilderMode.bundle.js'
     : webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'dist', 'BuilderMode.bundle.js'));
 
@@ -22,7 +22,7 @@ export function _getBuilderModeWebviewContent(
       'https://unpkg.com', // Monaco Editor CDN
       "'unsafe-eval'", // Required for Monaco and React dev mode
       "'unsafe-inline'", // Required for inline scripts
-      isDev && 'http://localhost:3000', // Dev server bundle
+      isDevelopment && 'http://localhost:3000', // Dev server bundle
     ],
 
     'style-src': [
@@ -42,8 +42,8 @@ export function _getBuilderModeWebviewContent(
     'connect-src': [
       'https://chrome-devtools-frontend.appspot.com',
       'https://unpkg.com', // Monaco assets
-      isDev && 'http://localhost:3000', // Dev server HTTP
-      isDev && 'ws://localhost:3000', // HMR WebSocket
+      isDevelopment && 'http://localhost:3000', // Dev server HTTP
+      isDevelopment && 'ws://localhost:3000', // HMR WebSocket
     ],
 
     'worker-src': ['blob:', 'https://unpkg.com'], // Web workers for Monaco to allow language services (e.g. syntax highlighting)

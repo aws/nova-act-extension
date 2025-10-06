@@ -2,6 +2,20 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [1.2.0] - 2025-10-06
+
+### Added
+
+- Action viewer bounding boxes
+
+### Changed
+
+- Updated README, full screen disclaimer and settings panel
+
+### Fixed
+
+- Run all cells and restart Python instance behavior
+
 ## [1.1.0] - 2025-09-25
 
 ### Changed
@@ -13,3 +27,4 @@ All notable changes to the Nova Act extension will be documented in this file.
 ### Added
 
 - Initial Release of Nova Act Extension
+

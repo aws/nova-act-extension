@@ -5,7 +5,7 @@
 
 The Nova Act extension transforms how you build with [Amazon Nova Act](https://github.com/aws/nova-act) by bringing the entire agent development experience directly into IDEs like Visual Studio Code, Kiro, and Cursor. No more switching between tools or losing your train of thought—unify agent development, testing, and debugging into a single IDE environment designed for building reliable AI agents.
 
-[Learn more about Amazon Nova Act.](https://nova.amazon.com/act)
+[Learn more in our blog post](https://labs.amazon.science/blog/nova-act-extension-build-and-test-ai-agents-without-leaving-your-ide) or [explore Amazon Nova Act](https://nova.amazon.com/act).
 
 <p align="center">
   <img src="resources/blog/demo.gif" width="75%">

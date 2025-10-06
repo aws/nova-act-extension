@@ -75,3 +75,12 @@
   outline: 1px solid var(--vscode-focusBorder);
   outline-offset: 2px;
 }
+
+.confirmation-modal-checkbox {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 13px;
+}

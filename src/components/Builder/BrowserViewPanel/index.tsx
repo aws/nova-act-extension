@@ -131,15 +131,25 @@ export const BrowserViewPanel = ({
               <button onClick={onFullscreenToggle}>Exit fullscreen</button>
             </div>
           </div>
-          {receivedWidth ? (
-            <iframe
-              className="fullscreen-iframe"
-              src={devToolsUrl}
-              allow="clipboard-read; clipboard-write"
-              style={{ width: `calc( 100% + ${receivedWidth ?? '250'}px )`, height: '100%' }}
-            />
+          {devToolsUrl ? (
+            receivedWidth ? (
+              <iframe
+                className="fullscreen-iframe"
+                src={devToolsUrl}
+                allow="clipboard-read; clipboard-write"
+                style={{ width: `calc( 100% + ${receivedWidth ?? '250'}px )`, height: '100%' }}
+              />
+            ) : (
+              <Loader />
+            )
           ) : (
-            <Loader />
+            <div className="placeholder-content">
+              <span>
+                Live view not available, set the{' '}
+                <span className="code-span">NOVA_ACT_BROWSER_ARGS</span> env variable and run Nova
+                Act to see the live view.
+              </span>
+            </div>
           )}
           <AgentOverlay isVisible={isOverlayVisible} />
         </div>

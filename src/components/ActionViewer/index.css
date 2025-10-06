@@ -155,6 +155,9 @@
 
 .action-step__image-container {
   margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
 .action-step__image {
@@ -162,6 +165,17 @@
   height: auto;
   border: 1px solid var(--vscode-panel-border);
   border-radius: 5px;
+  display: block;
+}
+
+.action-step__image-loading {
+  padding: 20px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 5px;
+  background-color: var(--vscode-textBlockQuote-background);
 }
 
 .action-step__action-container {
