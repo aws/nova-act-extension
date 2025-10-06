@@ -57,6 +57,11 @@ export interface ReadyCommand {
   command: 'ready';
 }
 
+export interface RestartPythonProcess {
+  command: 'restartPythonProcess';
+  restart?: boolean;
+}
+
 export interface OpenActionViewerCommand {
   command: 'openActionViewer';
   htmlFilePath?: string;
@@ -64,9 +69,21 @@ export interface OpenActionViewerCommand {
   actionViewerFolderPath?: string;
 }
 
+export interface GetPreference {
+  command: 'getPreference';
+  key: string;
+}
+
+export interface SetPreference {
+  command: 'setPreference';
+  key: string;
+  value: boolean;
+}
+
 export type BuilderModeToExtensionMessage =
   | CommonToExtensionMessage
   | RunPythonCommand
+  | RestartPythonProcess
   | FetchDevToolsCommand
   | FileCommand
   | ShowErrorCommand
@@ -75,7 +92,9 @@ export type BuilderModeToExtensionMessage =
   | RestartPanelCommand
   | SetApiKeyCommand
   | ReadyCommand
-  | OpenActionViewerCommand;
+  | OpenActionViewerCommand
+  | GetPreference
+  | SetPreference;
 
 /* -------------------------------------------------------------------------- */
 /*             Messages FROM extension TO builder mode webview                */
@@ -133,6 +152,22 @@ export interface ThemeMessage {
   theme: 'vs-dark' | 'vs-light' | 'hc-black';
 }
 
+export interface PythonProcessReloadedMessage {
+  type: 'pythonProcessReloaded';
+}
+
+export interface GetPreferenceMessage {
+  type: 'getPreferenceValue';
+  key: string;
+  value: boolean;
+}
+
+export interface SetPreferenceMessage {
+  type: 'setPreferenceValue';
+  key: string;
+  value: boolean;
+}
+
 export type ExtensionToBuilderModeMessage =
   | InitMessage
   | CellExecutionMessage
@@ -141,4 +176,7 @@ export type ExtensionToBuilderModeMessage =
   | FileSavedMessage
   | ChromeDevToolsResponseMessage
   | AgentActivity
-  | ThemeMessage;
+  | ThemeMessage
+  | PythonProcessReloadedMessage
+  | GetPreferenceMessage
+  | SetPreferenceMessage;

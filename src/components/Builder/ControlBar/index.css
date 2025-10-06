@@ -5,6 +5,7 @@
   flex-wrap: nowrap;
   background-color: var(--vscode-sideBarSectionHeader-background);
   justify-content: space-between;
+  position: relative;
 }
 
 .control-bar-container .left,
@@ -40,4 +41,29 @@ input.control-bar-file-input.unsaved-changed {
   border-radius: 4px;
   gap: 10px;
   max-width: 176px;
+}
+
+.settings-panel {
+  border: 1px solid var(--vscode-editorWidget-border);
+  position: absolute;
+  border-radius: 4px;
+  overflow: hidden;
+  right: 16px;
+  top: 56px;
+  z-index: 10;
+  background: var(--vscode-input-background);
+  width: 150px;
+  font-size: 0.9rem;
+}
+
+.settings-panel-title {
+  padding: 8px;
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+}
+
+.secondary-button.settings-button {
+  padding: 8px;
+  border-radius: 0;
+  width: 100%;
+  justify-content: flex-start;
 }

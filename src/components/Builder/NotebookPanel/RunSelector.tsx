@@ -1,17 +1,43 @@
+import { useEffect, useState } from 'react';
+
+import { RUN_ALL_PREFERENCE_KEY } from '../../../constants';
+import { getPreference } from '../../../core/utils/builderModeUtils';
 import { StopIcon } from '../../../core/utils/svg';
+import { builderModeVscodeApi } from '../../../core/utils/vscodeApi';
 import { Tooltip } from '../Tooltip';
+import { ConfirmationModal } from './ConfirmationModal';
 import { type RunAllState } from './index';
 
 export const RunSelector = ({
   runAllState,
-  runAllCells,
+  restartPythonAndRunAll,
   stopExecution,
 }: {
   runAllState: RunAllState;
-  runAllCells: () => void;
+  restartPythonAndRunAll: () => void;
   stopExecution: () => void;
 }) => {
-  const onButtonClick = runAllState.isRunning ? stopExecution : runAllCells;
+  const [runAllConfirmation, setRunAllConfirmation] = useState(false);
+  const [runAllDontRemind, setRunAllDontRemind] = useState(false);
+
+  useEffect(() => {
+    getPreference(RUN_ALL_PREFERENCE_KEY).then((value) => setRunAllDontRemind(value));
+  }, []);
+
+  const onButtonClick = () => {
+    if (runAllState.isRunning) {
+      stopExecution();
+      return;
+    }
+
+    if (runAllDontRemind) {
+      restartPythonAndRunAll();
+      setRunAllConfirmation(false);
+      return;
+    }
+
+    setRunAllConfirmation(true);
+  };
 
   return (
     <div className="notebook-run-select-container">
@@ -42,6 +68,22 @@ export const RunSelector = ({
           </button>
         </Tooltip>
       </div>
+      <ConfirmationModal
+        isOpen={runAllConfirmation}
+        onConfirm={() => {
+          builderModeVscodeApi.postMessage({
+            command: 'setPreference',
+            key: RUN_ALL_PREFERENCE_KEY,
+            value: runAllDontRemind,
+          });
+          restartPythonAndRunAll();
+          setRunAllConfirmation(false);
+        }}
+        onCancel={() => setRunAllConfirmation(false)}
+        confirmationText="Are you sure you want to run all cells? This will restart any running Nova Act instance"
+        dontRemind={runAllDontRemind}
+        setDontRemind={setRunAllDontRemind}
+      />
     </div>
   );
 };

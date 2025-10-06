@@ -33,6 +33,7 @@ if (typeof WebSocket === 'undefined') {
 export class BuilderModeProvider {
   private static currentPanel: BuilderModeProvider | undefined;
   private readonly panel: vscode.WebviewPanel;
+  private readonly extensionContext: vscode.ExtensionContext;
   private pythonProcess: cp.ChildProcess | undefined;
   private pythonWs: InstanceType<typeof WS> | undefined;
   private cdtWs: InstanceType<typeof WS> | undefined;
@@ -46,6 +47,7 @@ export class BuilderModeProvider {
     init?: string | string[]
   ) {
     logger.log('BuilderModeProvider.init()');
+    this.extensionContext = extensionContext;
     const extensionUri = extensionContext.extensionUri;
     this.panel = panel;
     this.telemetryClient = TelemetryClient.getInstance();
@@ -56,28 +58,9 @@ export class BuilderModeProvider {
     };
     this.panel.webview.html = _getBuilderModeWebviewContent(this.panel.webview, extensionContext);
 
-    const homeDir = os.homedir();
-    let pythonPath: string;
-
-    if (process.platform === 'win32') {
-      pythonPath = path.join(homeDir, '.nova-act-env', 'Scripts', 'python.exe');
-    } else {
-      pythonPath = path.join(homeDir, '.nova-act-env', 'bin', 'python');
-    }
-
-    const backendScript = vscode.Uri.joinPath(
-      extensionUri,
-      'src',
-      'scripts',
-      'websocket_backend.py'
-    );
-
-    // Double check pythonPath is correct
-    if (!fs.existsSync(pythonPath)) {
-      vscode.window.showErrorMessage(`Python not found at ${pythonPath}`);
-    } else {
-      this.initializePythonProcess(pythonPath, backendScript.fsPath, extensionContext);
-    }
+    // Cleanup any existing python process before starting a new one
+    this.cleanPythonProcess();
+    this.initializePythonProcess();
 
     const scriptToLoad = Array.isArray(init)
       ? init
@@ -95,6 +78,10 @@ export class BuilderModeProvider {
         case 'ready':
           this.postMessageToWebview(initMessage);
           this.sendThemeToWebview();
+          break;
+        case 'restartPythonProcess':
+          this.cleanPythonProcess();
+          this.initializePythonProcess(message.restart);
           break;
         case 'runPython':
           this.sendPythonCode(message);
@@ -139,6 +126,27 @@ export class BuilderModeProvider {
         }
         case 'setApiKey': {
           await setApiKey(extensionContext);
+          break;
+        }
+        case 'getPreference': {
+          if (!message.key || message.key.trim() === '') {
+            logger.error('getPreference called without a key or value');
+            break;
+          }
+          const storedValue = this.extensionContext.globalState.get<boolean>(message.key, false);
+          this.postMessageToWebview({
+            type: 'getPreferenceValue',
+            key: message.key,
+            value: storedValue,
+          });
+          break;
+        }
+        case 'setPreference': {
+          if (!message.key || message.key.trim() === '' || !message.value) {
+            logger.error('getPreference called without a key or value');
+            break;
+          }
+          this.extensionContext.globalState.update(message.key, message.value);
           break;
         }
 
@@ -252,22 +260,13 @@ export class BuilderModeProvider {
 
   public async cleanup() {
     this.themeChangeDisposable?.dispose();
-    if (
-      this.pythonWs &&
-      (this.pythonWs.readyState === WS.OPEN || this.pythonWs.readyState === WS.CONNECTING)
-    )
-      this.pythonWs.close();
-    this.pythonWs = undefined;
-
+    this.cleanPythonProcess();
     if (
       this.cdtWs &&
       (this.cdtWs.readyState === WS.OPEN || this.cdtWs.readyState === WS.CONNECTING)
     )
       this.cdtWs.close();
     this.cdtWs = undefined;
-
-    if (this.pythonProcess) this.pythonProcess.kill('SIGTERM');
-    this.pythonProcess = undefined;
   }
 
   private sendPythonCode(
@@ -390,14 +389,31 @@ export class BuilderModeProvider {
     }
   }
 
-  private async initializePythonProcess(
-    pythonPath: string,
-    backendScriptPath: string,
-    extensionContext: vscode.ExtensionContext
-  ) {
-    logger.log('initializePythonProcess start');
+  private async initializePythonProcess(restart: boolean = false): Promise<void> {
+    logger.debug('initializePythonProcess start');
 
-    const apiKey = await getApiKey(extensionContext);
+    const homeDir = os.homedir();
+    let pythonPath: string;
+
+    if (process.platform === 'win32') {
+      pythonPath = path.join(homeDir, '.nova-act-env', 'Scripts', 'python.exe');
+    } else {
+      pythonPath = path.join(homeDir, '.nova-act-env', 'bin', 'python');
+    }
+
+    if (!fs.existsSync(pythonPath)) {
+      vscode.window.showErrorMessage(`Python not found at ${pythonPath}`);
+      return;
+    }
+
+    const backendScript = vscode.Uri.joinPath(
+      this.extensionContext.extensionUri,
+      'src',
+      'scripts',
+      'websocket_backend.py'
+    );
+
+    const apiKey = await getApiKey(this.extensionContext);
     const envVars: Record<string, string> = {
       ...process.env,
       PYTHONUNBUFFERED: '1',
@@ -410,7 +426,7 @@ export class BuilderModeProvider {
       logger.log('No API key found in configuration');
     }
 
-    const py = cp.spawn(pythonPath, [backendScriptPath], {
+    const py = cp.spawn(pythonPath, [backendScript.fsPath], {
       env: envVars,
     });
 
@@ -421,6 +437,12 @@ export class BuilderModeProvider {
     this.waitForPortReady({ port: wsPort })
       .then(() => {
         const ws = new WS(`ws://localhost:${wsPort}`);
+        ws.onopen = () => {
+          this.pythonWs = ws;
+          if (restart) {
+            this.postMessageToWebview({ type: 'pythonProcessReloaded' });
+          }
+        };
         ws.onmessage = (rawData) => {
           try {
             const message = JSON.parse(rawData.data);
@@ -446,7 +468,6 @@ export class BuilderModeProvider {
           vscode.window.showErrorMessage(
             error instanceof Error ? error.message : 'Unknown WebSocket error'
           );
-        this.pythonWs = ws;
       })
       .catch((err) =>
         vscode.window.showErrorMessage(`Failed to connect to backend: ${err.message}`)
@@ -580,5 +601,17 @@ export class BuilderModeProvider {
     } else {
       logger.log('Python WebSocket not connected; API key will be set when backend connects.');
     }
+  }
+  public cleanPythonProcess() {
+    if (
+      this.pythonWs &&
+      (this.pythonWs.readyState === WS.OPEN || this.pythonWs.readyState === WS.CONNECTING)
+    ) {
+      this.pythonWs.close();
+    }
+    this.pythonWs = undefined;
+
+    if (this.pythonProcess) this.pythonProcess.kill('SIGTERM');
+    this.pythonProcess = undefined;
   }
 }

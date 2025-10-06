@@ -236,3 +236,24 @@ export const captureRunAllCellsCompleted = ({
     },
   });
 };
+
+/* ----------------------------- Util to get stored preference ---------------------------- */
+export const getPreference = (key: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (!builderModeVscodeApi) {
+      resolve(false);
+      return;
+    }
+
+    const handleMessage = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg.type === 'getPreferenceValue' && msg.key === key) {
+        window.removeEventListener('message', handleMessage);
+        resolve(msg.value);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    builderModeVscodeApi.postMessage({ command: 'getPreference', key });
+  });
+};

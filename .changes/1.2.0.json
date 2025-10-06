@@ -1,0 +1,17 @@
+{
+  "version": "1.2.0",
+  "changes": [
+    {
+      "type": "Changed",
+      "description": "Updated README, full screen disclaimer and settings panel"
+    },
+    {
+      "type": "Fixed",
+      "description": "Run all cells and restart Python instance behavior"
+    },
+    {
+      "type": "Added",
+      "description": "Action viewer bounding boxes"
+    }
+  ]
+}

@@ -23,6 +23,11 @@ export enum VSCodeCommands {
   activitybar = 'workbench.view.extension.nova-agent-vs-code-ext-activitybar',
 }
 
+// User Preferences
+export const RESTART_NOTEBOOK_PREFERENCE_KEY = 'restartNotebook';
+export const RUN_ALL_PREFERENCE_KEY = 'runAllCells';
+export const CLEAR_ALL_PREFERENCE_KEY = 'clearNotebook';
+
 // Other constants
 export const NOVA_ACT_API_KEY = 'novaAgentApiKey';
 export const EXTENSION_ID = 'amazonwebservices.amazon-nova-act-extension';

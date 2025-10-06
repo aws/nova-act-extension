@@ -1,27 +1,49 @@
 import React, { useEffect, useState } from 'react';
 
+// eslint-disable-next-line import/order
 import type {
   ActionData,
   ActionGroup,
   ActionStep,
   ExtensionToActionViewerMessage,
 } from '../../core/types/actionViewerMessages';
-// eslint-disable-next-line import/order
+import {
+  type BoundingBox,
+  addBoundingBoxesToImage,
+  decodeHtmlEntities,
+  extractBoundingBoxes,
+} from '../../core/utils/actionViewerBrowserUtils';
 import { actionViewerVscodeApi } from '../../core/utils/vscodeApi';
 import './index.css';
-
-// Helper function to decode HTML entities
-const decodeHtmlEntities = (text: string): string => {
-  const textarea: HTMLTextAreaElement = document.createElement('textarea');
-  textarea.innerHTML = text;
-  return textarea.value;
-};
 
 // Component to render individual action steps
 const ActionStepComponent: React.FC<{ step: ActionStep; showStepNumber?: boolean }> = ({
   step,
   showStepNumber = true,
 }) => {
+  const [processedImageData, setProcessedImageData] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const boundingBoxes: BoundingBox[] = step.actionData ? extractBoundingBoxes(step.actionData) : [];
+
+  // Process the image when component mounts or when image/boxes change
+  useEffect(() => {
+    if (!step.imageData) {
+      setProcessedImageData(null);
+      return;
+    }
+
+    if (boundingBoxes.length > 0) {
+      addBoundingBoxesToImage(step.imageData, boundingBoxes)
+        .then(setProcessedImageData)
+        .catch((_error: Error) => {
+          setImageError('Failed to process image');
+          setProcessedImageData(step.imageData || null); // Fallback to original image
+        });
+    } else {
+      setProcessedImageData(step.imageData);
+    }
+  }, [step.imageData, boundingBoxes]);
+
   return (
     <div className="action-step">
       {showStepNumber && <h4 className="action-step__title">Step {step.stepNumber}</h4>}
@@ -48,11 +70,15 @@ const ActionStepComponent: React.FC<{ step: ActionStep; showStepNumber?: boolean
 
       {step.imageData ? (
         <div className="action-step__image-container">
-          <img
-            src={step.imageData}
-            alt={`Screenshot for Step ${step.stepNumber}`}
-            className="action-step__image"
-          />
+          {processedImageData ? (
+            <img
+              src={processedImageData}
+              alt={`Screenshot for Step ${step.stepNumber}`}
+              className="action-step__image"
+            />
+          ) : (
+            <div className="action-step__image-loading">{imageError || 'Processing image...'}</div>
+          )}
         </div>
       ) : (
         <div className="action-step__image-container">
@@ -218,6 +244,7 @@ export const ActionViewer: React.FC = () => {
           <div className="action-viewer__act-id">Act ID: {actionData.actId}</div>
         )}
 
+        {/* Show prompt for single file view */}
         {actionData.prompt && !actionData.isFolder && (
           <div className="action-viewer__prompt">Prompt: "{actionData.prompt}"</div>
         )}
