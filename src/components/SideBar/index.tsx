@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { templates } from '../../core/templates/templates';
 import {
   AiEdit,
+  BookIcon,
   ChevronIcon,
   ExternalLinkIcon,
   GlobeIcon,
@@ -130,12 +131,12 @@ export function SideBarPanel() {
               <button
                 id="builderBtn"
                 className="left-btn action-button"
-                title="Try builder mode"
+                title="Open builder mode"
                 onClick={handleBuilderButtonClick}
                 disabled={!hasApiKey}
               >
                 <GlobeIcon />
-                Try Builder Mode
+                Open Builder Mode
               </button>
               <button
                 disabled={!hasApiKey}
@@ -185,8 +186,8 @@ export function SideBarPanel() {
               });
             }}
           >
+            <BookIcon />
             Guide and Examples
-            <ExternalLinkIcon />
           </button>
           <div className="waitlist-section">
             <div className="waitlist-content">
@@ -195,7 +196,7 @@ export function SideBarPanel() {
               <button
                 id="waitlistBtn"
                 title="Open waitlist"
-                className="action-button"
+                className="action-button waitlist-button"
                 onClick={() => {
                   sidebarVscodeApi.postMessage({
                     command: 'openExternalUrl',

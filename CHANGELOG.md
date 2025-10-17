@@ -2,6 +2,18 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [1.3.0] - 2025-10-17
+
+### Changed
+
+- Button and Icons. Why don't seagulls fly over the bay? Because then they'd be bagels!
+
+### Fixed
+
+- Bug when running empty cell
+- Typing into Live view and losing control of the tab
+- Missing Websocket dependency
+
 ## [1.2.0] - 2025-10-06
 
 ### Added

@@ -51,4 +51,5 @@ export enum GlobalStateCommands {
   installId = 'novaAct.installId',
 }
 
-export const BACKEND_WS_PORT = 8001;
+// Default port - can be overridden by VS Code settings
+export const DEFAULT_BACKEND_WS_PORT = 8765;

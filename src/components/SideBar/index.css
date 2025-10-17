@@ -2,8 +2,12 @@
   width: 100%;
   min-width: 24px;
   gap: 10px;
-  padding: 4px 2px;
+  padding: 4px 2px 4px 5px;
   height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .builder-mode-with-templates {
@@ -41,7 +45,16 @@
 }
 
 .template-button {
-  padding: 8px 0;
+  padding: 8px 0 8px 5px;
   height: fit-content;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+.waitlist-button {
+  justify-content: center;
+  text-align: center;
+  padding: 4px 2px;
 }

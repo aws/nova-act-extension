@@ -157,13 +157,33 @@ You can also check that your Python version is compatible by running:
 
 Ensure the output shows Python 3.10 or above. If not, install or update Python before proceeding.
 
+## Configuration
+
+### WebSocket Port
+
+You can customize the WebSocket port used for internal communication through VS Code settings:
+
+1. Open VS Code Settings (`Cmd/Ctrl + ,`)
+2. Search for "Nova Act"
+3. Set "Nova Act: Websocket Port" to your desired port (default: 8765)
+
+Alternatively, you can add this to your `settings.json`:
+
+```json
+{
+  "novaAct.websocketPort": 8765
+}
+```
+
+**Note:** After changing the port, restart Builder Mode for the changes to take effect.
+
 ## Troubleshooting
 
 ### Port Usage
 
 If you get a **StartFailed** error when running `nova.start()`, most likely there's a port conflict or you already have a running Nova Act client.
 
-The Nova Act extension uses local ports `9222` (for Chrome DevTools) and `8001` (for internal communication). If these ports are already in use, Builder Mode may fail to start correctly.
+The Nova Act extension uses local ports `9222` (for Chrome DevTools) and `8765` (for internal communication, configurable). If these ports are already in use, Builder Mode may fail to start correctly.
 
 #### Quick Fix
 
@@ -173,7 +193,7 @@ The **Restart Notebook** button (top right in Builder Mode) should clear port co
 
 ```bash
 lsof -i :9222
-lsof -i :8001
+lsof -i :8765
 kill -9 <PID>
 ```
 
@@ -181,7 +201,7 @@ kill -9 <PID>
 
 ```bash
 netstat -ano | findstr :9222
-netstat -ano | findstr :8001
+netstat -ano | findstr :8765
 taskkill /PID <PID> /F
 ```
 
