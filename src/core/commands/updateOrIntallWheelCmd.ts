@@ -67,7 +67,12 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
         await execAsync(`"${venvPythonPath}" -m pip install nova_act --upgrade`);
         progress.report({ increment: 10, message: '📦 NovaAct installed' });
 
-        // Step 5: Install Playwright
+        // Step 5: Install websockets
+        progress.report({ message: '🔌 Installing websockets...' });
+        await execAsync(`"${venvPythonPath}" -m pip install websockets --upgrade`);
+        progress.report({ increment: 5, message: '🔌 Websockets installed' });
+
+        // Step 6: Install Playwright
         progress.report({ message: '🌐 Installing Playwright...' });
         let installCmd = `"${venvPythonPath}" -m playwright install chromium`;
 
@@ -79,7 +84,7 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
 
         progress.report({ increment: 10, message: '🎭 Playwright installed' });
 
-        // Step 6: Finalize setup
+        // Step 7: Finalize setup
         progress.report({ increment: 5, message: '⚙️ Finalizing setup...' });
         try {
           if (PLATFORM === 'darwin' || PLATFORM === 'linux') {

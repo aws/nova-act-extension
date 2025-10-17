@@ -1,0 +1,21 @@
+{
+  "version": "1.3.0",
+  "changes": [
+    {
+      "type": "Fixed",
+      "description": "Bug when running empty cell"
+    },
+    {
+      "type": "Fixed",
+      "description": "Typing into Live view and losing control of the tab"
+    },
+    {
+      "type": "Changed",
+      "description": "Button and Icons. Why don't seagulls fly over the bay? Because then they'd be bagels!"
+    },
+    {
+      "type": "Fixed",
+      "description": "Missing Websocket dependency"
+    }
+  ]
+}

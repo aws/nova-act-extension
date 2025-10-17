@@ -256,6 +256,10 @@ def find_last_novaact_var(code: str):
                     last_var = node.target.id
     return last_var
 
-if __name__ == "__main__":
-    with serve(handler, "", 8001) as server:
+if __name__ == "__main__":    
+    # Get port from environment variable, default to 8765
+    port = int(os.environ.get('NOVA_ACT_WEBSOCKET_PORT', '8765'))
+    
+    print(f"Starting Nova Act WebSocket server on port {port}")
+    with serve(handler, "", port) as server:
         server.serve_forever()

@@ -3,7 +3,7 @@
   "displayName": "Nova Act",
   "description": "AI-powered automation extension for IDE. Generate, debug, and run web automation scripts with natural language commands.",
   "publisher": "amazonwebservices",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "extensionKind": [
     "ui"
@@ -271,6 +271,13 @@
           "type": "boolean",
           "default": true,
           "description": "Show Nova Act status bar item"
+        },
+        "novaAct.websocketPort": {
+          "type": "number",
+          "default": 8765,
+          "minimum": 1024,
+          "maximum": 65535,
+          "description": "Port number for Nova Act WebSocket server communication"
         }
       }
     },

@@ -480,8 +480,25 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     }
 
     const cell = cells.find((c) => c.id === cellId);
-    if (!cell || !builderModeVscodeApi || !cell.code.trim()) {
-      logger.debug(`Cannot run cell ${cellId} - cell not found, no API, or empty code`);
+    if (!cell || !builderModeVscodeApi) {
+      logger.debug(`Cannot run cell ${cellId} - cell not found or no API`);
+      return;
+    }
+
+    // Check for empty cell and skip it with message
+    if (!cell.code.trim()) {
+      const cellIndex = cells.findIndex((c) => c.id === cellId);
+      logger.debug(`Skipping empty cell ${cellIndex + 1}: ${cellId}`);
+
+      // Update cell output to show it was skipped
+      updateCellOutput(cellId, `Cell ${cellIndex + 1} skipped - no code to execute\n`);
+
+      // Mark cell as success (skipped)
+      updateCell(cellId, (oldCell: Cell) => ({
+        ...oldCell,
+        status: 'success',
+      }));
+
       return;
     }
 
@@ -519,20 +536,37 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
 
     setRunAllState({ isRunning: true, current: 0, total: cells.length });
 
-    // Precompute for RUN_ALL_STARTED
+    // Precompute for RUN_ALL_STARTED (only count non-empty cells for telemetry)
+    const nonEmptyCells = cells.filter((cell) => cell.code.trim());
     const cellIds = cells.map((cell) => cell.id);
-    const lineCount = cells.reduce((acc, cell) => acc + countLines(cell.code), 0);
-    const actCallCount = cells.reduce((acc, cell) => acc + countActCalls(cell.code), 0);
+    const lineCount = nonEmptyCells.reduce((acc, cell) => acc + countLines(cell.code), 0);
+    const actCallCount = nonEmptyCells.reduce((acc, cell) => acc + countActCalls(cell.code), 0);
 
     const runId = initializeBatchRunContext({ actCallCount, lineCount });
     captureRunAllCellsStarted({ runId, cellCount: cells.length, lineCount, actCallCount, cellIds });
 
     for (const [i, cell] of cells.entries()) {
-      logger.debug(`Running cell ${i + 1}/${cells.length}: ${cell.id}`);
+      logger.debug(`Processing cell ${i + 1}/${cells.length}: ${cell.id}`);
       setRunAllState((prev) => ({ ...prev, current: i + 1 }));
       selectCell(cell.id);
 
-      // Skip emitting telemetry for single cell runs in favor of the single run-all event above
+      // Check if cell is empty and skip it
+      if (!cell.code.trim()) {
+        logger.debug(`Skipping empty cell ${i + 1}: ${cell.id}`);
+
+        // Update cell output to show it was skipped
+        updateCellOutput(cell.id, `Cell ${i + 1} skipped - no code to execute\n`);
+
+        // Mark cell as success (skipped)
+        updateCell(cell.id, (oldCell: Cell) => ({
+          ...oldCell,
+          status: 'success',
+        }));
+
+        continue; // Skip to next cell
+      }
+
+      // Run the cell (non-empty)
       runCell({ cellId: cell.id, emitTelemetry: false, batchRunId: runId });
 
       // Wait for completion and check if it succeeded

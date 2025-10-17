@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { BACKEND_WS_PORT } from '../../constants';
+import { DEFAULT_BACKEND_WS_PORT } from '../../constants';
 import { openActionViewer } from '../commands/openActionViewer';
 import { getApiKey, setApiKey } from '../commands/setApiKeyCmd';
 import { updateOrInstallWheelCmd } from '../commands/updateOrIntallWheelCmd';
@@ -208,10 +208,14 @@ export class BuilderModeProvider {
       return;
     }
 
+    // Get the configured WebSocket port
+    const config = vscode.workspace.getConfiguration('novaAct');
+    const wsPort = config.get<number>('websocketPort', DEFAULT_BACKEND_WS_PORT);
+
     // Before initializing builder mode, check if we already have a websocket backend running on the port
-    if (await isPortInUse(BACKEND_WS_PORT)) {
+    if (await isPortInUse(wsPort)) {
       const action = await vscode.window.showWarningMessage(
-        `Port ${BACKEND_WS_PORT} is already in use. This may be caused by another Builder Mode session. Please re-use or close the existing session. If there are no other active sessions, please follow the troubleshooting steps.`,
+        `Port ${wsPort} is already in use. This may be caused by another Builder Mode session. Please re-use or close the existing session. If there are no other active sessions, please follow the troubleshooting steps.`,
         'View Troubleshooting Steps'
       );
       if (action === 'View Troubleshooting Steps') {
@@ -256,6 +260,11 @@ export class BuilderModeProvider {
       BuilderModeProvider.currentPanel.panel.dispose();
       BuilderModeProvider.currentPanel = undefined;
     }
+  }
+
+  private getWebSocketPort(): number {
+    const config = vscode.workspace.getConfiguration('novaAct');
+    return config.get<number>('websocketPort', DEFAULT_BACKEND_WS_PORT);
   }
 
   public async cleanup() {
@@ -344,14 +353,28 @@ export class BuilderModeProvider {
               targetInfo.url.startsWith('chrome://') ||
               targetInfo.url.startsWith('devtools://')
             ) {
-              logger.debug(`Ignoring system page: ${targetInfo.url}`);
+              // Close the Chrome system tab by sending Target.closeTarget message
+              ws.send(
+                JSON.stringify({
+                  id: msgId++,
+                  method: 'Target.closeTarget',
+                  params: { targetId: targetInfo.targetId },
+                })
+              );
               return;
             }
+
+            logger.debug(
+              `New page target created: ${targetInfo.url} with targetId: ${targetInfo.targetId}`
+            );
 
             const tabs = await this.fetchChromeTabs(devToolsJsonUrl);
             const newTab = tabs.find((t) => t.id === targetInfo.targetId);
             // Jump to new tab
-            if (newTab) this.sendChromeDevToolsResponse(true, [newTab]);
+            if (newTab) {
+              logger.debug(`Switching to new tab: ${newTab.title} (${newTab.url})`);
+              this.sendChromeDevToolsResponse(true, [newTab]);
+            }
           } catch (err) {
             logger.error('Error parsing Chrome WS message: ' + err);
           }
@@ -414,9 +437,12 @@ export class BuilderModeProvider {
     );
 
     const apiKey = await getApiKey(this.extensionContext);
+    const wsPort = this.getWebSocketPort();
+
     const envVars: Record<string, string> = {
       ...process.env,
       PYTHONUNBUFFERED: '1',
+      NOVA_ACT_WEBSOCKET_PORT: wsPort.toString(),
     } as Record<string, string>;
 
     if (apiKey) {
@@ -426,14 +452,14 @@ export class BuilderModeProvider {
       logger.log('No API key found in configuration');
     }
 
+    logger.log(`Starting Python WebSocket server on port ${wsPort}`);
+
     const py = cp.spawn(pythonPath, [backendScript.fsPath], {
       env: envVars,
     });
 
     // Store reference for cleanup
     this.pythonProcess = py;
-
-    const wsPort = BACKEND_WS_PORT;
     this.waitForPortReady({ port: wsPort })
       .then(() => {
         const ws = new WS(`ws://localhost:${wsPort}`);
