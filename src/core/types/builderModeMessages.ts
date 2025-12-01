@@ -1,6 +1,8 @@
 // Builder Mode webview communication types
-import { type ChromeDevToolsTab } from './builder';
+import { type ChromeDevToolsTab, type Template } from './builder';
 import { type CommonToExtensionMessage } from './commonMessages';
+import { type DependencyValidationResult } from './deployTypes';
+import { type TabName } from './sidebarMessages';
 
 /* -------------------------------------------------------------------------- */
 /*             Messages FROM builder mode webview TO extension                */
@@ -80,6 +82,91 @@ export interface SetPreference {
   value: boolean;
 }
 
+export interface DeployScript {
+  command: 'deployScript';
+  name: string;
+  region: string;
+  filePath: string;
+  executionRoleArn?: string;
+}
+
+export interface ValidateDependencies {
+  command: 'validateDependencies';
+}
+
+export interface InvokeRuntime {
+  command: 'invokeRuntime';
+  name: string;
+  payload: string;
+}
+
+export interface ListWorkflows {
+  command: 'listWorkflows';
+  region: string;
+}
+
+export interface SetActiveWorkflow {
+  command: 'setActiveWorkflow';
+  workflowName: string;
+}
+
+export interface ValidateAwsCredentials {
+  command: 'validateAwsCredentials';
+  isRefresh?: boolean;
+}
+
+export interface ValidateWorkflowScript {
+  command: 'validateWorkflowScript';
+  filePath: string;
+  agentName: string;
+}
+
+export interface BuilderModeCommand {
+  command: 'builderMode';
+  template?: Template;
+  initialTab?: TabName;
+}
+
+export interface ViewWorkflowDetailsCommand {
+  command: 'viewWorkflowDetails';
+}
+
+export interface ViewIamPermissionsCommand {
+  command: 'viewIamPermissions';
+}
+
+export interface ViewDeploymentDocumentationCommand {
+  command: 'viewDeploymentDocumentation';
+}
+
+export interface ViewRunDocumentationCommand {
+  command: 'viewRunDocumentation';
+}
+
+export interface ViewNovaActStepDetailsCommand {
+  command: 'viewNovaActStepDetails';
+}
+
+export interface CheckApiKeyStatusCommand {
+  command: 'checkApiKeyStatus';
+}
+
+export interface GetApiKeyCommand {
+  command: 'getApiKey';
+}
+
+export interface ApplyConversion {
+  command: 'applyConversion';
+  filePath: string;
+  convertedCode: string;
+  agentName: string;
+}
+
+export interface OpenExternalUrlCommand {
+  command: 'openExternalUrl';
+  url: string;
+}
+
 export type BuilderModeToExtensionMessage =
   | CommonToExtensionMessage
   | RunPythonCommand
@@ -94,7 +181,24 @@ export type BuilderModeToExtensionMessage =
   | ReadyCommand
   | OpenActionViewerCommand
   | GetPreference
-  | SetPreference;
+  | SetPreference
+  | DeployScript
+  | ValidateDependencies
+  | InvokeRuntime
+  | ListWorkflows
+  | SetActiveWorkflow
+  | ValidateAwsCredentials
+  | BuilderModeCommand
+  | ViewWorkflowDetailsCommand
+  | ViewIamPermissionsCommand
+  | ViewDeploymentDocumentationCommand
+  | ViewRunDocumentationCommand
+  | ViewNovaActStepDetailsCommand
+  | ValidateWorkflowScript
+  | CheckApiKeyStatusCommand
+  | GetApiKeyCommand
+  | ApplyConversion
+  | OpenExternalUrlCommand;
 
 /* -------------------------------------------------------------------------- */
 /*             Messages FROM extension TO builder mode webview                */
@@ -108,6 +212,7 @@ export interface AgentActivity {
 export interface InitMessage {
   type: 'init';
   content: string[];
+  initialTab?: string;
 }
 
 export interface CellExecutionMessage {
@@ -168,6 +273,101 @@ export interface SetPreferenceMessage {
   value: boolean;
 }
 
+export interface RuntimeInvocationResult {
+  type: 'runtimeInvocationResult';
+  success: boolean;
+  response?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  error?: string;
+}
+
+export interface AwsCredentialsValidationResult {
+  type: 'awsCredentialsValidationResult';
+  success: boolean;
+  identity?: {
+    UserId?: string;
+    Account?: string;
+    Arn?: string;
+  };
+  error?: string;
+  isRefresh?: boolean;
+}
+
+export interface InvokeRuntimeResult {
+  type: 'invokeRuntimeResult';
+  success: boolean;
+  response?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  error?: string;
+  workflowName: string;
+}
+
+export interface WorkflowInfo {
+  name: string;
+}
+
+export interface WorkflowListResult {
+  type: 'workflowListResult';
+  workflows: WorkflowInfo[];
+  error?: string | null;
+}
+
+export interface WorkflowScriptValidationResult {
+  type: 'workflowScriptValidationResult';
+  success: boolean;
+  workflowNameWarning: string;
+  headlessWarning: string;
+  deploymentFormatWarning: string;
+  error?: string;
+}
+
+export interface DeploymentResult {
+  type: 'deploymentResult';
+  success: boolean;
+  message: string;
+  details?: string;
+}
+
+export interface ValidationResult {
+  type: 'validationResult';
+  docker: boolean;
+  novaActCLI: boolean;
+  awsCredentials: boolean;
+  errors: string[];
+}
+
+export interface ActCliPathFoundMessage {
+  type: 'actCliPathFound';
+  path: string;
+}
+
+export interface ApiKeyStatusResult {
+  type: 'apiKeyStatusResult';
+  hasApiKey: boolean;
+}
+
+export interface ApiKeyResult {
+  type: 'apiKeyResult';
+  apiKey: string | null;
+}
+
+export interface ConversionApplied {
+  type: 'conversionApplied';
+  success: boolean;
+  backupPath?: string;
+  error?: string;
+}
+
+export interface InvokeRuntimeProgress {
+  type: 'invokeRuntimeProgress';
+  workflowName: string;
+  output: string;
+}
+
+export interface WorkflowOutputBuffer {
+  type: 'workflowOutputBuffer';
+  workflowName: string;
+  output: string;
+}
+
 export type ExtensionToBuilderModeMessage =
   | InitMessage
   | CellExecutionMessage
@@ -179,4 +379,17 @@ export type ExtensionToBuilderModeMessage =
   | ThemeMessage
   | PythonProcessReloadedMessage
   | GetPreferenceMessage
-  | SetPreferenceMessage;
+  | SetPreferenceMessage
+  | DependencyValidationResult
+  | RuntimeInvocationResult
+  | AwsCredentialsValidationResult
+  | DeploymentResult
+  | InvokeRuntimeResult
+  | InvokeRuntimeProgress
+  | WorkflowOutputBuffer
+  | WorkflowListResult
+  | ValidationResult
+  | WorkflowScriptValidationResult
+  | ApiKeyStatusResult
+  | ApiKeyResult
+  | ConversionApplied;

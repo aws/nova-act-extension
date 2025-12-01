@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 
 import { templates } from '../../core/templates/templates';
+import { TAB_NAMES } from '../../core/types/sidebarMessages';
 import {
   AiEdit,
   BookIcon,
   ChevronIcon,
-  ExternalLinkIcon,
-  GlobeIcon,
-  WarningIcon,
+  CloudUploadIcon,
+  FilePlusIcon,
+  LockIcon,
+  RunIcon,
 } from '../../core/utils/svg';
 // Removed SVG imports - using emojis for consistency
 import { sidebarVscodeApi } from '../../core/utils/vscodeApi';
 import logger from '../webviewLogger';
 import './index.css';
 
-// Default prompt for script generation
-const DEFAULT_SCRIPT_PROMPT =
+// Default prompt for workflow generation
+const DEFAULT_WORKFLOW_PROMPT =
   '@novaAct create a script to click the learn more button on nova.amazon.com/act and then return the title and publication date of the blog';
 
 export function SideBarPanel() {
@@ -29,15 +31,32 @@ export function SideBarPanel() {
     logger.debug('SideBarPanel: Builder button clicked');
     sidebarVscodeApi.postMessage({
       command: 'builderMode',
+      initialTab: TAB_NAMES.BUILD,
     });
   }
 
-  function handleGenerateScriptClick() {
-    logger.debug('SideBarPanel: Generate script button clicked');
-    // Navigate to Copilot with a starting prompt for Nova Act script generation
+  function handleDeployButtonClick() {
+    logger.debug('SideBarPanel: Deploy button clicked');
+    sidebarVscodeApi.postMessage({
+      command: 'builderMode',
+      initialTab: TAB_NAMES.DEPLOY,
+    });
+  }
+
+  function handleRunButtonClick() {
+    logger.debug('SideBarPanel: Run button clicked');
+    sidebarVscodeApi.postMessage({
+      command: 'builderMode',
+      initialTab: TAB_NAMES.RUN_WORKFLOWS,
+    });
+  }
+
+  function handleGenerateWorkflowClick() {
+    logger.debug('SideBarPanel: Generate workflow button clicked');
+    // Navigate to Copilot with a starting prompt for Workflow generation
     sidebarVscodeApi.postMessage({
       command: 'openCopilotWithPrompt',
-      prompt: DEFAULT_SCRIPT_PROMPT,
+      prompt: DEFAULT_WORKFLOW_PROMPT,
     });
   }
 
@@ -49,14 +68,7 @@ export function SideBarPanel() {
     sidebarVscodeApi.postMessage({
       command: 'builderMode',
       template,
-    });
-  }
-
-  function handleSetApiKeyClick() {
-    logger.debug('SideBarPanel: Set API Key button clicked');
-    setIsLoading(true);
-    sidebarVscodeApi.postMessage({
-      command: 'setApiKey',
+      initialTab: TAB_NAMES.BUILD,
     });
   }
 
@@ -115,17 +127,20 @@ export function SideBarPanel() {
 
       <div className="center-container">
         <div className="button-container">
-          {!hasApiKey && (
-            <>
-              <button id="setApiKeyBtn" className="action-button" onClick={handleSetApiKeyClick}>
-                Set API Key
-              </button>
-              <div className="warning-text">
-                <WarningIcon />
-                API key required for Builder Mode
-              </div>
-            </>
-          )}
+          <button
+            id="authenticateBtn"
+            className="action-button"
+            title="Authenticate with AWS or API Key"
+            onClick={() => {
+              sidebarVscodeApi.postMessage({
+                command: 'builderMode',
+                initialTab: TAB_NAMES.AUTHENTICATE,
+              });
+            }}
+          >
+            <LockIcon />
+            Authenticate
+          </button>
           <div className="builder-mode-with-templates">
             <div className="inline-buttons">
               <button
@@ -133,13 +148,11 @@ export function SideBarPanel() {
                 className="left-btn action-button"
                 title="Open builder mode"
                 onClick={handleBuilderButtonClick}
-                disabled={!hasApiKey}
               >
-                <GlobeIcon />
-                Open Builder Mode
+                <FilePlusIcon />
+                Build Workflows
               </button>
               <button
-                disabled={!hasApiKey}
                 title="Show templates"
                 className={`right-btn icon-button ${showTemplates && 'expanded'}`}
                 onClick={() => setShowTemplates(!showTemplates)}
@@ -165,14 +178,32 @@ export function SideBarPanel() {
               </div>
             )}
           </div>
+          <button
+            id="deployBtn"
+            className="action-button"
+            title="Open deploy mode"
+            onClick={handleDeployButtonClick}
+          >
+            <CloudUploadIcon />
+            Deploy Workflows
+          </button>
+          <button
+            id="runBtn"
+            className="action-button"
+            title="Open run mode"
+            onClick={handleRunButtonClick}
+          >
+            <RunIcon />
+            Run Workflows
+          </button>
           {isVSCode && (
             <button
               id="generateBtn"
-              title="Generate Nova Act Script"
+              title="Generate Workflows"
               className="action-button"
-              onClick={handleGenerateScriptClick}
+              onClick={handleGenerateWorkflowClick}
             >
-              <AiEdit /> Generate Nova Act Script
+              <AiEdit /> Generate Workflows
             </button>
           )}
           <button
@@ -189,26 +220,6 @@ export function SideBarPanel() {
             <BookIcon />
             Guide and Examples
           </button>
-          <div className="waitlist-section">
-            <div className="waitlist-content">
-              <h3>Path to Production</h3>
-              <p>Join the preview waitlist to work with us to productionize your agents</p>
-              <button
-                id="waitlistBtn"
-                title="Open waitlist"
-                className="action-button waitlist-button"
-                onClick={() => {
-                  sidebarVscodeApi.postMessage({
-                    command: 'openExternalUrl',
-                    url: 'https://amazonexteu.qualtrics.com/jfe/form/SV_9siTXCFdKHpdwCa',
-                  });
-                }}
-              >
-                Join Waitlist
-                <ExternalLinkIcon />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

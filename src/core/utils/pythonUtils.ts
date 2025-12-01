@@ -19,7 +19,7 @@ export const PLATFORM = os.platform();
  * @param pythonPath Path to the Python executable
  * @returns true if usable, false otherwise
  */
-export async function isPythonVersionUsable(pythonPath: string): Promise<boolean> {
+async function isPythonVersionUsable(pythonPath: string): Promise<boolean> {
   try {
     const { stdout } = await execAsync(`"${pythonPath}" --version`);
     if (!stdout) {

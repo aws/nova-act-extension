@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { Commands, VSCodeCommands } from '../../constants';
 import { TelemetryClient } from '../telemetry/client';
 import { type ImportSource } from '../telemetry/events';
+import { TAB_NAMES } from '../types/sidebarMessages';
 import { concatMessage, convertErrorToString } from '../utils/utils';
 import { getNovaActVersionCmd } from './getNovaActVersionCmd';
 import { openActionViewer } from './openActionViewer';
@@ -10,6 +11,7 @@ import { openBuilderMode } from './openBuilderMode';
 import { openWalkthroughsCmd } from './openWalkthroughCmd';
 import { setApiKey } from './setApiKeyCmd';
 import { updateOrInstallWheelCmd } from './updateOrIntallWheelCmd';
+import { viewWorkflowDocumentationCmd } from './viewWorkflowDocumentationCmd';
 
 type VSCommandHandler = Parameters<typeof vscode.commands.registerCommand>[1];
 
@@ -25,9 +27,24 @@ async function showNovaActMenu() {
       action: 'openSidebar',
     },
     {
+      label: '$(key) Authenticate',
+      description: 'Configure Nova Act authentication',
+      action: 'authenticate',
+    },
+    {
       label: '$(play) Builder Mode',
       description: 'Open Nova Act Builder Mode',
       action: 'builderMode',
+    },
+    {
+      label: '$(cloud-upload) Deploy Workflow',
+      description: 'Open Nova Act Builder Mode in Deploy tab',
+      action: 'deployMode',
+    },
+    {
+      label: '$(cloud) Run Workflows',
+      description: 'Open Nova Act Builder Mode in Run tab',
+      action: 'runMode',
     },
     {
       label: '$(key) Set API Key',
@@ -51,8 +68,17 @@ async function showNovaActMenu() {
       case 'openSidebar':
         await vscode.commands.executeCommand(Commands.sidebar);
         break;
+      case 'authenticate':
+        await vscode.commands.executeCommand(Commands.showBuilderModeAuthenticate);
+        break;
       case 'builderMode':
         await vscode.commands.executeCommand(Commands.showBuilderMode);
+        break;
+      case 'deployMode':
+        await vscode.commands.executeCommand(Commands.showBuilderModeDeploy);
+        break;
+      case 'runMode':
+        await vscode.commands.executeCommand(Commands.showBuilderModeRun);
         break;
       case 'setApiKey':
         await vscode.commands.executeCommand(Commands.setApiKey);
@@ -97,6 +123,15 @@ export function registerCommands(context: vscode.ExtensionContext) {
     (arg: { initialContent?: string; initialContentSource?: ImportSource } | undefined) =>
       openBuilderMode(context, arg)
   );
+  registerCommandWrapped(context, Commands.showBuilderModeAuthenticate, () =>
+    openBuilderMode(context, { initialTab: TAB_NAMES.AUTHENTICATE })
+  );
+  registerCommandWrapped(context, Commands.showBuilderModeDeploy, () =>
+    openBuilderMode(context, { initialTab: TAB_NAMES.DEPLOY })
+  );
+  registerCommandWrapped(context, Commands.showBuilderModeRun, () =>
+    openBuilderMode(context, { initialTab: TAB_NAMES.RUN_WORKFLOWS })
+  );
   registerCommandWrapped(context, Commands.updateOrInstallWheel, async () => {
     await updateOrInstallWheelCmd();
   });
@@ -129,6 +164,10 @@ export function registerCommands(context: vscode.ExtensionContext) {
 
   registerCommandWrapped(context, Commands.getNovaActVersion, async () => {
     await getNovaActVersionCmd(context);
+  });
+
+  registerCommandWrapped(context, Commands.viewWorkflowDocumentation, async () => {
+    await viewWorkflowDocumentationCmd();
   });
 }
 

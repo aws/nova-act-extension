@@ -1,0 +1,137 @@
+/* Enhanced Deployment Form Styles */
+.deployment-form-content {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deployment-form-content .expandable-content-inner {
+  padding-top: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 16px;
+}
+
+.deployment-form-container.enhanced {
+  width: 100%;
+  max-width: var(--deploy-form-max-width);
+  padding: 0;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.form-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.validation-success-icon {
+  position: absolute;
+  right: 8px;
+  color: var(--vscode-testing-iconPassed);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.validation-feedback {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.validation-feedback.error {
+  color: var(--vscode-errorForeground);
+}
+
+.validation-feedback i {
+  font-size: 12px;
+}
+
+.form-input.valid {
+  border-color: var(--vscode-testing-iconPassed);
+  padding-right: 32px;
+}
+
+.deploy-button-container.enhanced {
+  margin-top: 8px;
+}
+
+.workflow-name-warning.enhanced {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--vscode-inputValidation-warningBackground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+  border-radius: 4px;
+}
+
+.warning-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.warning-content svg {
+  flex-shrink: 0;
+}
+
+/* Enhanced form field spacing and layout */
+.deployment-form-container.enhanced .form-row {
+  gap: 24px;
+  margin-bottom: 8px;
+}
+
+.deployment-form-container.enhanced .form-field {
+  gap: 4px;
+}
+
+/* Execution Role ARN field styles */
+.help-text {
+  margin-top: 4px;
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+}
+
+.error-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-inputValidation-errorForeground);
+}
+
+.error-text .codicon-error {
+  font-size: 14px;
+}
+
+.form-input.error {
+  border-color: var(--vscode-inputValidation-errorBorder);
+  background-color: var(--vscode-inputValidation-errorBackground);
+}
+
+/* Responsive adjustments for enhanced form */
+@media (max-width: 500px) {
+  .deployment-form-container.enhanced .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .validation-success-icon {
+    right: 12px;
+  }
+}

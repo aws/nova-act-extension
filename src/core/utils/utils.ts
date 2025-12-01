@@ -35,3 +35,12 @@ export const concatMessage = (message: string) => {
   const MAX_LENGTH = 500;
   return message.length > MAX_LENGTH ? message.slice(0, MAX_LENGTH) + '...' : message;
 };
+
+export const validateJsonPayload = (payload: string): boolean => {
+  try {
+    JSON.parse(payload);
+    return true;
+  } catch {
+    return false;
+  }
+};

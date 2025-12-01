@@ -213,9 +213,9 @@ function getStepDetailsHtml(): string {
             <div class="section-title">Basic Usage Example</div>
             <div class="code-block">
                 <pre><code>from nova_act import NovaAct
-n = NovaAct(starting_page="https://nova.amazon.com/act")
+n = NovaAct(starting_page="https://nova.amazon.com/act/gym")
 n.start()
-n.act("Get information about today's featured article")</code></pre>
+n.act("Go into the Proxima Centauri b page. Return the gravity and average temperature")</code></pre>
             </div>
         </div>
 
@@ -305,22 +305,20 @@ n.act("Get information about today's featured article")</code></pre>
             <div class="section-title">Usage Examples</div>
             <div class="code-block">
                 <pre><code># Basic usage
-with NovaAct(starting_page="https://example.com") as nova:
-    nova.act("click the login button")
-    nova.act("enter username 'user@example.com'")
-    nova.act("click submit")</code></pre>
+with NovaAct(starting_page="https://nova.amazon.com/act/gym") as nova:
+    nova.act("Click on NextDot, then explore possible destinations")</code></pre>
             </div>
             <div class="code-block">
                 <pre><code># With configuration
 nova = NovaAct(
-    starting_page="https://shop.com",
+    starting_page="https://nova.amazon.com/act/gym",
     headless=False,
     record_video=True,
     screen_width=1920,
     screen_height=1080
 )
 nova.start()
-nova.act("search for 'wireless headphones'")
+nova.act("Go into the Proxima Centauri b page. Return the gravity and average temperature")
 nova.stop()</code></pre>
             </div>
         </div>

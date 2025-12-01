@@ -1,0 +1,110 @@
+.expandable-section {
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background-color: var(--vscode-editor-background);
+}
+
+.expandable-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--vscode-panel-background);
+  border-bottom: 1px solid var(--vscode-panel-border);
+  transition: background-color 0.2s ease;
+}
+
+.expandable-header.collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+
+.expandable-header.collapsible:hover {
+  background-color: var(--vscode-list-hoverBackground);
+}
+
+.expandable-header.collapsible:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.expandable-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vscode-foreground);
+}
+
+.expand-icon {
+  font-size: 9px;
+  color: var(--vscode-foreground);
+  transition: transform 0.15s ease;
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon.collapsed {
+  transform: rotate(0deg);
+}
+
+/* Icon Content via CSS Pseudo-elements */
+.expand-icon-symbol::before {
+  content: '▶';
+}
+
+.expand-icon.expanded .expand-icon-symbol::before {
+  content: '▼';
+}
+
+.expandable-content {
+  overflow: hidden;
+  transition: max-height 0.15s ease;
+}
+
+.expandable-content.expanded {
+  max-height: 1000px;
+}
+
+.expandable-content.collapsed {
+  max-height: 0;
+}
+
+.expandable-content-inner {
+  padding: 16px;
+}
+
+/* Remove border-bottom from header when content is collapsed */
+.expandable-section:has(.expandable-content.collapsed) .expandable-header {
+  border-bottom: none;
+}
+
+/* Accessibility improvements */
+.expandable-header.collapsible[aria-expanded='true'] .expand-icon::before {
+  content: attr(aria-label);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .expandable-section {
+    border-width: 2px;
+  }
+
+  .expandable-header.collapsible:focus {
+    outline-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .expandable-content,
+  .expand-icon,
+  .expandable-header {
+    transition: none;
+  }
+}

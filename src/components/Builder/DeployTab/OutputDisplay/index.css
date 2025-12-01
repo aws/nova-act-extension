@@ -1,0 +1,131 @@
+/* OutputDisplay Component Styles */
+
+.output-display {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.output-content {
+  position: relative;
+}
+
+.output-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.output-content:hover .output-controls {
+  opacity: 1;
+}
+
+.output-text {
+  background: var(--vscode-terminal-background);
+  color: var(--vscode-terminal-foreground);
+  padding: 10px;
+  border-radius: 2px;
+  font-family: var(--deploy-font-mono);
+  font-weight: var(--deploy-weight-light);
+  font-size: var(--deploy-text-sm);
+  line-height: var(--deploy-line-height-mono);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  position: relative;
+}
+
+.output-text.success {
+  border-left: 3px solid var(--vscode-testing-iconPassed);
+}
+
+.output-text.error {
+  border-left: 3px solid var(--vscode-testing-iconFailed);
+}
+
+/* Dynamic height transitions for output components */
+.output-text.dynamic-height {
+  transition: height 0.15s ease;
+  overflow-y: auto;
+}
+
+/* Smooth scrollbar styling for dynamic content */
+.output-text.dynamic-height::-webkit-scrollbar {
+  width: 8px;
+}
+
+.output-text.dynamic-height::-webkit-scrollbar-track {
+  background: var(--vscode-scrollbarSlider-background);
+  border-radius: 4px;
+}
+
+.output-text.dynamic-height::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-hoverBackground);
+  border-radius: 4px;
+}
+
+.output-text.dynamic-height::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-activeBackground);
+}
+
+/* Auto-scroll indicator for dynamic content */
+.output-text.dynamic-height::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: var(--vscode-progressBar-background);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.output-text.dynamic-height:hover::after {
+  opacity: 0.3;
+}
+
+/* Loading state for dynamic content */
+.output-text.dynamic-height.loading {
+  opacity: 0.7;
+  position: relative;
+}
+
+.output-text.dynamic-height.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsive adjustments for dynamic content */
+@media (max-width: 500px) {
+  .output-text.dynamic-height {
+    font-size: 10px;
+    padding: 8px;
+  }
+
+  .output-text.dynamic-height::-webkit-scrollbar {
+    width: 6px;
+  }
+}

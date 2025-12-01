@@ -3,6 +3,17 @@ import * as path from 'path';
 
 import { type ActionData, type ActionStep } from '../types/actionViewerMessages';
 
+interface NewFormatMetadata {
+  session_id?: string;
+  act_id?: string;
+  prompt?: string;
+}
+
+interface NewFormatRoot {
+  steps: unknown[];
+  metadata: NewFormatMetadata;
+}
+
 /**
  * Helper function to extract Session ID and Act ID from file path
  * Format: path/to/session/act_*.html
@@ -96,6 +107,17 @@ export function sortFilesByTimestamp(filePaths: string[]): string[] {
 }
 
 /**
+ * Helper function to detect calls JSON format
+ */
+function isNewFormat(jsonData: unknown): jsonData is NewFormatRoot {
+  if (typeof jsonData !== 'object' || jsonData === null) {
+    return false;
+  }
+  const obj = jsonData as Record<string, unknown>;
+  return Array.isArray(obj.steps) && typeof obj.metadata === 'object' && obj.metadata !== null;
+}
+
+/**
  * Helper function to create an ActionStep from a call object
  */
 export function createActionStep(
@@ -132,51 +154,77 @@ export function createActionStep(
 }
 
 /**
+ * Helper function to parse old format calls JSON
+ */
+function parseOldFormat(
+  jsonData: unknown[],
+  filePath: string,
+  includeFileInfo: boolean
+): ActionData | null {
+  const firstStep: Record<string, unknown> = jsonData[0] as Record<string, unknown>;
+  const request: Record<string, unknown> = firstStep?.request as Record<string, unknown>;
+  const agentRunCreate: Record<string, unknown> = request?.agentRunCreate as Record<
+    string,
+    unknown
+  >;
+  const kwargs: Record<string, unknown> = firstStep?.kwargs as Record<string, unknown>;
+
+  const sessionId: string = agentRunCreate?.workflowRunId as string;
+  const actId: string = (agentRunCreate?.id as string) || path.basename(filePath, '_calls.json');
+  const prompt: string =
+    (request?.prompt as string) ||
+    (agentRunCreate?.task as string) ||
+    (kwargs?.task as string) ||
+    'No prompt available';
+  const fileName: string = path.basename(filePath);
+
+  const steps: ActionStep[] = jsonData.map((call, index) =>
+    createActionStep(call as Record<string, unknown>, index, actId, fileName, includeFileInfo)
+  );
+
+  return { actId, prompt, steps, isFolder: false, fileCount: 1, sessionId };
+}
+
+/**
+ * Helper function to parse new format calls JSON
+ */
+function parseNewFormat(
+  jsonData: NewFormatRoot,
+  filePath: string,
+  includeFileInfo: boolean
+): ActionData | null {
+  const { metadata, steps: stepsArray } = jsonData;
+
+  const sessionId: string = metadata.session_id || '';
+  const actId: string = metadata.act_id || path.basename(filePath, '_calls.json');
+  const prompt: string = metadata.prompt || 'No prompt available';
+  const fileName: string = path.basename(filePath);
+
+  const steps: ActionStep[] = stepsArray.map((call, index) =>
+    createActionStep(call as Record<string, unknown>, index, actId, fileName, includeFileInfo)
+  );
+
+  return { actId, prompt, steps, isFolder: false, fileCount: 1, sessionId };
+}
+
+/**
  * Helper function to parse calls JSON data into ActionData format
  */
 export function parseCallsJsonData(
-  jsonData: unknown[],
+  jsonData: unknown,
   filePath: string,
   includeFileInfo = false
 ): ActionData | null {
   try {
+    if (isNewFormat(jsonData)) {
+      return parseNewFormat(jsonData, filePath, includeFileInfo);
+    }
+
     if (!Array.isArray(jsonData) || jsonData.length === 0) {
       return null;
     }
 
-    const firstStep: Record<string, unknown> = jsonData[0] as Record<string, unknown>;
-    const request: Record<string, unknown> = firstStep?.request as Record<string, unknown>;
-    const agentRunCreate: Record<string, unknown> = request?.agentRunCreate as Record<
-      string,
-      unknown
-    >;
-    const kwargs: Record<string, unknown> = firstStep?.kwargs as Record<string, unknown>;
-
-    const sessionId: string = agentRunCreate?.workflowRunId as string;
-    const actId: string = (agentRunCreate?.id as string) || path.basename(filePath, '_calls.json');
-
-    const prompt: string =
-      (request?.prompt as string) ||
-      (agentRunCreate?.task as string) ||
-      (kwargs?.task as string) ||
-      'No prompt available';
-
-    const fileName: string = path.basename(filePath);
-
-    const steps: ActionStep[] = jsonData.map((call, index) =>
-      createActionStep(call as Record<string, unknown>, index, actId, fileName, includeFileInfo)
-    );
-
-    const actionData: ActionData = {
-      actId,
-      prompt,
-      steps,
-      isFolder: false,
-      fileCount: 1,
-      sessionId,
-    };
-
-    return actionData;
+    return parseOldFormat(jsonData, filePath, includeFileInfo);
   } catch (_error) {
     return null;
   }

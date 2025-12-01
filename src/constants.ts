@@ -8,11 +8,20 @@ export enum Commands {
   viewNovaActStepDetails = 'nova-agent-vs-code-ext.viewNovaActStepDetails',
   updateOrInstallWheel = 'nova-agent-vs-code-ext.updateOrInstallWheel',
   showBuilderMode = 'nova-agent-vs-code-ext.showBuilderMode',
+  showBuilderModeAuthenticate = 'nova-agent-vs-code-ext.showBuilderModeAuthenticate',
+  showBuilderModeDeploy = 'nova-agent-vs-code-ext.showBuilderModeDeploy',
+  showBuilderModeRun = 'nova-agent-vs-code-ext.showBuilderModeRun',
   setApiKey = 'nova-agent-vs-code-ext.setApiKey',
   showMenu = 'nova-agent-vs-code-ext.showMenu',
   sidebar = 'nova-agent-vs-code-ext.sidebar',
   openActionViewer = 'nova-agent-vs-code-ext.openActionViewer',
   getNovaActVersion = 'nova-agent-vs-code-ext.getNovaActVersion',
+  viewWorkflowDetails = 'nova-agent-vs-code-ext.viewWorkflowDetails',
+  viewIamPermissions = 'nova-agent-vs-code-ext.viewIamPermissions',
+  viewDeploymentDocumentation = 'nova-agent-vs-code-ext.viewDeploymentDocumentation',
+  viewRunDocumentation = 'nova-agent-vs-code-ext.viewRunDocumentation',
+  deployWorkflow = 'nova-agent-vs-code-ext.deployWorkflow',
+  viewWorkflowDocumentation = 'nova-agent-vs-code-ext.viewWorkflowDocumentation',
 }
 
 // VS Code built-in commands
@@ -42,6 +51,7 @@ export enum ChatCommands {
   search = 'search',
   qa = 'qa',
   formfilling = 'formfilling',
+  workflow = 'workflow',
 }
 
 export enum GlobalStateCommands {

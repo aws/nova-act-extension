@@ -5,6 +5,7 @@ import { registerCommands } from './commands';
 import { registerNovaActCodeLensProvider } from './integration/codeLensProvider';
 import { copilotChatIntegration } from './integration/copilotChatIntegration';
 import { installExtensionIntegration } from './integration/installExtesionIntegration';
+import { registerWorkflowCodeLensProvider } from './integration/workflowCodeLensProvider';
 import { SidebarProvider } from './provider/sidebarProvider';
 import { TelemetryClient } from './telemetry/client';
 import { InstallSource } from './telemetry/events';
@@ -52,6 +53,7 @@ const registerAllSubscriptions = (context: vscode.ExtensionContext) => {
   );
   context.subscriptions.push(registerStatusBar(context));
   registerNovaActCodeLensProvider(context);
+  registerWorkflowCodeLensProvider(context);
   context.subscriptions.push(installExtensionIntegration(context));
 };
 

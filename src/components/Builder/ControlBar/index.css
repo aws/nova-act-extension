@@ -12,7 +12,7 @@
 .control-bar-container .right {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }

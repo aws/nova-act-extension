@@ -4,9 +4,10 @@ import os from 'os';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { DEFAULT_BACKEND_WS_PORT } from '../../constants';
+import { Commands, DEFAULT_BACKEND_WS_PORT } from '../../constants';
 import { openActionViewer } from '../commands/openActionViewer';
-import { getApiKey, setApiKey } from '../commands/setApiKeyCmd';
+import { getApiKey } from '../commands/setApiKeyCmd';
+import { setApiKey } from '../commands/setApiKeyCmd';
 import { updateOrInstallWheelCmd } from '../commands/updateOrIntallWheelCmd';
 import { _getBuilderModeWebviewContent } from '../pages/builderModePage';
 import { TelemetryClient } from '../telemetry/client';
@@ -22,6 +23,13 @@ import {
 import { isPortInUse } from '../utils/extensionHostUtils';
 import logger from '../utils/logger';
 import { splitPythonCode } from '../utils/splitPythonCode';
+import { createWorkflowFiles, readFileContent } from '../utils/workflowFileUtils';
+import {
+  validateDeploymentFormat,
+  validateHeadlessParameter,
+  validateWorkflowNameInScript,
+} from '../utils/workflowUtils';
+import { NovaActCliProvider } from './novaActCliProvider';
 
 let WS: typeof WebSocket;
 if (typeof WebSocket === 'undefined') {
@@ -37,6 +45,9 @@ export class BuilderModeProvider {
   private pythonProcess: cp.ChildProcess | undefined;
   private pythonWs: InstanceType<typeof WS> | undefined;
   private cdtWs: InstanceType<typeof WS> | undefined;
+  private novaActPath: string | undefined;
+  private initialTab?: string;
+  private novaActCliProvider: NovaActCliProvider;
 
   private telemetryClient: TelemetryClient;
   private themeChangeDisposable: vscode.Disposable | undefined;
@@ -44,10 +55,13 @@ export class BuilderModeProvider {
   private constructor(
     panel: vscode.WebviewPanel,
     extensionContext: vscode.ExtensionContext,
-    init?: string | string[]
+    init?: string | string[],
+    initialTab?: string
   ) {
     logger.log('BuilderModeProvider.init()');
     this.extensionContext = extensionContext;
+    this.initialTab = initialTab;
+    this.novaActCliProvider = new NovaActCliProvider(extensionContext);
     const extensionUri = extensionContext.extensionUri;
     this.panel = panel;
     this.telemetryClient = TelemetryClient.getInstance();
@@ -67,7 +81,11 @@ export class BuilderModeProvider {
       : typeof init === 'string'
         ? splitPythonCode(init)
         : this.getDefaultStarterScript();
-    const initMessage: InitMessage = { type: 'init', content: scriptToLoad };
+    const initMessage: InitMessage = {
+      type: 'init',
+      content: scriptToLoad,
+      initialTab: this.initialTab,
+    };
 
     this.themeChangeDisposable = vscode.window.onDidChangeActiveColorTheme(() =>
       this.sendThemeToWebview()
@@ -150,6 +168,158 @@ export class BuilderModeProvider {
           break;
         }
 
+        case 'deployScript': {
+          this.novaActCliProvider.handleDeployScript(
+            message,
+            this.panel.webview,
+            readFileContent,
+            createWorkflowFiles
+          );
+          break;
+        }
+
+        case 'validateDependencies': {
+          this.novaActCliProvider.handleValidateDependencies(this.panel.webview);
+          break;
+        }
+
+        case 'invokeRuntime': {
+          this.novaActCliProvider.handleInvokeRuntime(message, this.panel.webview);
+          break;
+        }
+
+        case 'listWorkflows': {
+          const maxRetries = 3;
+          let lastError: Error | null = null;
+
+          for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+              const workflows = await this.novaActCliProvider.listWorkflows(message.region);
+              this.postMessageToWebview({
+                type: 'workflowListResult',
+                workflows,
+                error: null,
+              });
+              return;
+            } catch (error) {
+              lastError = error as Error;
+
+              if (
+                lastError.message.includes('Nova Act CLI not found') &&
+                attempt < maxRetries - 1
+              ) {
+                const delay = 1000 * (attempt + 1);
+                logger.debug(
+                  `CLI not ready, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`
+                );
+                await new Promise((resolve) => setTimeout(resolve, delay));
+                continue;
+              }
+
+              break;
+            }
+          }
+
+          logger.error(`Failed to list workflows after ${maxRetries} attempts: ${lastError}`);
+          this.postMessageToWebview({
+            type: 'workflowListResult',
+            workflows: [],
+            error: lastError?.message || 'Failed to load workflows',
+          });
+          break;
+        }
+
+        case 'setActiveWorkflow': {
+          await this.novaActCliProvider.handleSetActiveWorkflow(message, this.panel.webview);
+          break;
+        }
+
+        case 'validateAwsCredentials': {
+          this.novaActCliProvider.handleValidateAwsCredentials(
+            this.panel.webview,
+            message.isRefresh
+          );
+          break;
+        }
+
+        case 'validateWorkflowScript': {
+          await this.handleValidateWorkflowScript(message);
+          break;
+        }
+
+        case 'applyConversion': {
+          await this.handleApplyConversion(message);
+          break;
+        }
+
+        case 'builderMode': {
+          // Handle navigation to build-run tab with template loading
+          if (message.template) {
+            // Load template content
+            const templateCells = message.template.cells || [];
+            this.postMessageToWebview({
+              type: 'init',
+              content: templateCells,
+              initialTab: message.initialTab,
+            });
+          } else if (message.initialTab) {
+            // Just switch tabs without loading content
+            this.postMessageToWebview({
+              type: 'init',
+              content: this.getDefaultStarterScript(),
+              initialTab: message.initialTab,
+            });
+          }
+          break;
+        }
+
+        case 'viewWorkflowDetails':
+          await vscode.commands.executeCommand(Commands.viewWorkflowDetails);
+          break;
+
+        case 'viewIamPermissions':
+          await vscode.commands.executeCommand(Commands.viewIamPermissions);
+          break;
+
+        case 'viewDeploymentDocumentation':
+          await vscode.commands.executeCommand(Commands.viewDeploymentDocumentation);
+          break;
+
+        case 'viewRunDocumentation':
+          await vscode.commands.executeCommand(Commands.viewRunDocumentation);
+          break;
+
+        case 'viewNovaActStepDetails':
+          await vscode.commands.executeCommand(Commands.viewNovaActStepDetails);
+          break;
+
+        case 'checkApiKeyStatus': {
+          const apiKey = await getApiKey(this.extensionContext);
+          const hasApiKey = !!apiKey && apiKey.trim().length > 0;
+          this.postMessageToWebview({
+            type: 'apiKeyStatusResult',
+            hasApiKey,
+          });
+          break;
+        }
+
+        case 'getApiKey': {
+          const apiKey = await getApiKey(this.extensionContext);
+          this.postMessageToWebview({
+            type: 'apiKeyResult',
+            apiKey: apiKey || null,
+          });
+          break;
+        }
+
+        case 'openExternalUrl':
+          try {
+            await vscode.env.openExternal(vscode.Uri.parse(message.url));
+          } catch (error) {
+            logger.error(`Failed to open external URL: ${error}`);
+          }
+          break;
+
         default:
           // Exhaustiveness check - If you see a TypeScript error here,
           // it means we are missing a case handler for a command type
@@ -169,14 +339,16 @@ export class BuilderModeProvider {
     currentPanel,
     initialContent,
     initialContentSource,
+    initialTab,
   }: {
     currentPanel: BuilderModeProvider;
     initialContent?: string | string[];
     initialContentSource?: ImportSource;
+    initialTab?: string;
   }) {
     currentPanel.panel.reveal(vscode.ViewColumn.One);
 
-    if (initialContent === undefined) {
+    if (initialContent === undefined && initialTab === undefined) {
       return;
     }
 
@@ -185,7 +357,11 @@ export class BuilderModeProvider {
       : typeof initialContent === 'string'
         ? splitPythonCode(initialContent)
         : currentPanel.getDefaultStarterScript();
-    const initMessage: InitMessage = { type: 'init', content: scriptToLoad };
+    const initMessage: InitMessage = {
+      type: 'init',
+      content: scriptToLoad,
+      initialTab,
+    };
     currentPanel.postMessageToWebview(initMessage);
 
     if (initialContentSource !== undefined) {
@@ -196,7 +372,8 @@ export class BuilderModeProvider {
   public static async show(
     extensionContext: vscode.ExtensionContext,
     initialContent?: string | string[],
-    initialContentSource?: ImportSource
+    initialContentSource?: ImportSource,
+    initialTab?: string
   ) {
     // If we already have builder mode initialized in the current panel, jump to it
     if (BuilderModeProvider.currentPanel) {
@@ -204,6 +381,7 @@ export class BuilderModeProvider {
         currentPanel: BuilderModeProvider.currentPanel,
         initialContent,
         initialContentSource,
+        initialTab,
       });
       return;
     }
@@ -244,7 +422,8 @@ export class BuilderModeProvider {
     BuilderModeProvider.currentPanel = new BuilderModeProvider(
       panel,
       extensionContext,
-      initialContent
+      initialContent,
+      initialTab
     );
 
     const telemetryClient = TelemetryClient.getInstance();
@@ -270,6 +449,7 @@ export class BuilderModeProvider {
   public async cleanup() {
     this.themeChangeDisposable?.dispose();
     this.cleanPythonProcess();
+    this.novaActCliProvider.dispose();
     if (
       this.cdtWs &&
       (this.cdtWs.readyState === WS.OPEN || this.cdtWs.readyState === WS.CONNECTING)
@@ -412,6 +592,25 @@ export class BuilderModeProvider {
     }
   }
 
+  async setupNovaActEnvironment(wsPort: number): Promise<Record<string, string>> {
+    const apiKey = await getApiKey(this.extensionContext);
+
+    const envVars = {
+      ...process.env,
+      PYTHONUNBUFFERED: '1',
+      NOVA_ACT_WEBSOCKET_PORT: wsPort.toString(),
+    } as Record<string, string>;
+
+    if (apiKey) {
+      envVars.NOVA_ACT_API_KEY = apiKey;
+      logger.log('API key set in environment variables');
+    } else {
+      logger.log('No API key found in settings');
+    }
+
+    return envVars;
+  }
+
   private async initializePythonProcess(restart: boolean = false): Promise<void> {
     logger.debug('initializePythonProcess start');
 
@@ -436,21 +635,8 @@ export class BuilderModeProvider {
       'websocket_backend.py'
     );
 
-    const apiKey = await getApiKey(this.extensionContext);
     const wsPort = this.getWebSocketPort();
-
-    const envVars: Record<string, string> = {
-      ...process.env,
-      PYTHONUNBUFFERED: '1',
-      NOVA_ACT_WEBSOCKET_PORT: wsPort.toString(),
-    } as Record<string, string>;
-
-    if (apiKey) {
-      envVars.NOVA_ACT_API_KEY = apiKey;
-      logger.log('API key set in environment variables');
-    } else {
-      logger.log('No API key found in configuration');
-    }
+    const envVars = await this.setupNovaActEnvironment(wsPort);
 
     logger.log(`Starting Python WebSocket server on port ${wsPort}`);
 
@@ -628,6 +814,134 @@ export class BuilderModeProvider {
       logger.log('Python WebSocket not connected; API key will be set when backend connects.');
     }
   }
+
+  private async handleValidateDependencies(webview: vscode.Webview) {
+    try {
+      const docker = await this.novaActCliProvider.validateDocker();
+      const novaActCLI = await this.novaActCliProvider.validateCli(this.novaActPath);
+      const awsCredentials = await this.novaActCliProvider.validateAwsCredentials();
+
+      const errors: string[] = [];
+      if (!docker) errors.push('Docker not found or not running');
+      if (!novaActCLI) errors.push('Nova Act CLI not found or invalid');
+      if (!awsCredentials) errors.push('AWS credentials not configured');
+
+      webview.postMessage({
+        type: 'dependencyValidationResult',
+        valid: errors.length === 0,
+        errors,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Dependency validation failed: ${errorMessage}`);
+      webview.postMessage({
+        type: 'dependencyValidationResult',
+        valid: false,
+        errors: [`Validation error: ${errorMessage}`],
+      });
+    }
+  }
+
+  private async handleValidateAwsCredentials(
+    webview: vscode.Webview,
+    _isRefresh?: boolean
+  ): Promise<void> {
+    // Delegate to NovaActCliProvider
+    await this.novaActCliProvider.handleValidateAwsCredentials(webview);
+  }
+
+  private async handleValidateWorkflowScript(
+    message: BuilderModeToExtensionMessage & { filePath: string; agentName: string }
+  ): Promise<void> {
+    try {
+      let scriptContent: string;
+      try {
+        scriptContent = fs.readFileSync(message.filePath, 'utf-8');
+      } catch (readError) {
+        this.postMessageToWebview({
+          type: 'workflowScriptValidationResult',
+          success: false,
+          workflowNameWarning: '',
+          headlessWarning: '',
+          deploymentFormatWarning: '',
+          error: `Could not read file: ${readError instanceof Error ? readError.message : String(readError)}`,
+        });
+        return;
+      }
+
+      const workflowNameWarning = validateWorkflowNameInScript(message.agentName, scriptContent);
+      const headlessWarning = validateHeadlessParameter(scriptContent);
+      const deploymentFormatWarning = validateDeploymentFormat(scriptContent);
+
+      this.postMessageToWebview({
+        type: 'workflowScriptValidationResult',
+        success: true,
+        workflowNameWarning,
+        headlessWarning,
+        deploymentFormatWarning,
+      });
+    } catch (error) {
+      logger.error(
+        `Workflow script validation failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+      this.postMessageToWebview({
+        type: 'workflowScriptValidationResult',
+        success: false,
+        workflowNameWarning: '',
+        headlessWarning: '',
+        deploymentFormatWarning: '',
+        error: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+      });
+    }
+  }
+
+  private async handleApplyConversion(
+    message: BuilderModeToExtensionMessage & {
+      filePath: string;
+      convertedCode: string;
+      agentName: string;
+    }
+  ): Promise<void> {
+    try {
+      const backupPath = `${message.filePath}.backup`;
+      const originalContent = fs.readFileSync(message.filePath, 'utf-8');
+
+      fs.writeFileSync(backupPath, originalContent, 'utf-8');
+      fs.writeFileSync(message.filePath, message.convertedCode, 'utf-8');
+
+      this.postMessageToWebview({
+        type: 'conversionApplied',
+        success: true,
+        backupPath,
+      });
+
+      vscode.window.showInformationMessage(
+        `Conversion applied successfully to ${message.filePath}. Backup saved to ${path.basename(backupPath)}`
+      );
+
+      // Retrigger validation to clear warnings if conversion fixed issues
+      await this.handleValidateWorkflowScript({
+        command: 'validateWorkflowScript',
+        filePath: message.filePath,
+        agentName: message.agentName,
+      });
+    } catch (error) {
+      logger.error(
+        `Failed to apply conversion: ${error instanceof Error ? error.message : String(error)}`
+      );
+      this.postMessageToWebview({
+        type: 'conversionApplied',
+        success: false,
+        error: `Failed to apply conversion: ${error instanceof Error ? error.message : String(error)}`,
+      });
+      vscode.window.showErrorMessage('Failed to apply conversion');
+    }
+  }
+
+  private async validateDocker(): Promise<boolean> {
+    return await this.novaActCliProvider.validateDocker();
+  }
+
   public cleanPythonProcess() {
     if (
       this.pythonWs &&

@@ -1,0 +1,32 @@
+.aws-column {
+  /* Inherits all styles from .auth-column */
+}
+
+.auth-status.checking {
+  background: var(--vscode-inputValidation-infoBackground);
+  border: 1px solid var(--vscode-inputValidation-infoBorder);
+}
+
+.auth-status.error {
+  background: var(--vscode-inputValidation-errorBackground);
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+}
+
+.inline-action-link.disabled {
+  cursor: wait;
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.codicon-modifier-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

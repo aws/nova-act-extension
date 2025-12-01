@@ -38,6 +38,7 @@ type BuilderModeProviderStatics = {
     currentPanel: MockCurrentPanel;
     initialContent?: string | string[];
     initialContentSource?: ImportSource;
+    initialTab?: string;
   }) => Promise<void>;
 };
 
@@ -76,6 +77,7 @@ describe('BuilderModeProvider.show (existing panel path)', () => {
       currentPanel: mockCurrentPanel,
       initialContent: 'test script',
       initialContentSource: ImportSource.FILE,
+      initialTab: undefined,
     });
   });
 });

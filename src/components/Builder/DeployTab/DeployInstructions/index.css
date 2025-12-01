@@ -1,0 +1,74 @@
+.deploy-instructions-section {
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+}
+
+.section-title {
+  font-size: var(--deploy-text-lg);
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--vscode-foreground);
+}
+
+.subsection-title {
+  font-size: var(--deploy-text-lg);
+  font-weight: 600;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: var(--vscode-foreground);
+}
+
+.workflow-docs-link {
+  color: var(--vscode-textLink-foreground);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.workflow-docs-link:hover {
+  text-decoration: underline;
+}
+
+.deploy-instructions-content {
+  width: 100%;
+}
+
+.deploy-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deploy-instructions {
+  width: 100%;
+  height: auto;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+}
+
+.deploy-steps-list {
+  margin: 0 0 0 16px;
+  padding: 0;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+}
+
+.deploy-step {
+  margin-bottom: 4px;
+}
+
+.template-inline-link {
+  background: none;
+  border: none;
+  color: var(--vscode-textLink-foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+}
+
+.disclaimer-text {
+  font-style: italic;
+}

@@ -1,0 +1,42 @@
+/* ButtonGroup Component - Connected Button Styling */
+.button-group {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+}
+
+/* Remove border radius from middle buttons */
+.button-group button:not(:first-of-type):not(:last-of-type) {
+  border-radius: 0;
+}
+
+/* First button - keep left radius, remove right radius */
+.button-group button:first-of-type:not(:last-of-type) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Last button - keep right radius, remove left radius */
+.button-group button:last-of-type:not(:first-of-type) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Remove right border from all buttons except the last to prevent double borders */
+.button-group button:not(:last-of-type) {
+  border-right: none;
+}
+
+/* Focus styles for keyboard navigation */
+.button-group button:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+  z-index: 1;
+  position: relative;
+}
+
+/* Ensure consistent height across all buttons in group */
+.button-group button {
+  box-sizing: border-box;
+  height: 28px;
+}

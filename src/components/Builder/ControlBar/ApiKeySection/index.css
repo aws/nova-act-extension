@@ -1,0 +1,74 @@
+/* Compact layout for ControlBar - mirrors IamIdentitySection */
+.api-key-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  background-color: var(--vscode-input-background);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  max-width: 250px;
+  white-space: nowrap;
+}
+
+.api-key-compact .api-key-label {
+  color: var(--vscode-foreground);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.api-key-compact .api-key-value {
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  color: #cacadb;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.api-key-compact .refresh-icon-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vscode-foreground);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.api-key-compact .refresh-icon-button:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground);
+  border-radius: 2px;
+}
+
+.api-key-compact .refresh-icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.api-key-compact .refresh-icon-button i {
+  font-size: 13px;
+}
+
+/* Reuse refresh spinner animation from IamIdentitySection */
+@keyframes refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.refresh-spinner {
+  animation: refresh-spin 1s linear infinite;
+}

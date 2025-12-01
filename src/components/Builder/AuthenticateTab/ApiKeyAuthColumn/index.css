@@ -1,0 +1,172 @@
+.auth-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 4px;
+  background: var(--vscode-editor-background);
+  max-width: 600px;
+}
+
+.auth-column > * {
+  margin-bottom: 10px;
+}
+
+.auth-column > *:last-child {
+  margin-bottom: 0;
+}
+
+.auth-column .auth-notice {
+  margin-top: auto;
+}
+
+.auth-column h2 {
+  font-family: var(--auth-font-primary);
+  font-size: 14px;
+  font-weight: var(--auth-weight-medium);
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.auth-description {
+  font-family: var(--auth-font-compact);
+  color: var(--vscode-descriptionForeground);
+  font-size: var(--auth-text-sm);
+  line-height: 135%;
+  margin: 0 0 10px 0;
+}
+
+.auth-instructions {
+  margin: 0;
+  margin-bottom: 16px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-instructions li {
+  font-family: var(--auth-font-compact);
+  font-size: var(--auth-text-sm);
+  line-height: 135%;
+  margin: 0;
+}
+
+.auth-instructions a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+.auth-instructions a:hover {
+  text-decoration: underline;
+}
+
+.auth-action-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 11px;
+  height: 32px;
+  width: 100%;
+  max-width: 300px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid var(--vscode-button-border);
+  border-radius: 0px;
+  cursor: pointer;
+  font-family: var(--auth-font-primary);
+  font-size: var(--auth-text-lg);
+  font-weight: var(--auth-weight-medium);
+}
+
+.auth-action-button:hover:not(:disabled) {
+  background: var(--vscode-button-hoverBackground);
+  border-color: var(--vscode-button-border);
+}
+
+.auth-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: var(--auth-font-compact);
+  font-size: var(--auth-text-sm);
+}
+
+.auth-status.success {
+  background: var(--vscode-testing-iconPassed);
+  color: var(--vscode-foreground);
+}
+
+.auth-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: var(--auth-font-compact);
+  font-size: var(--auth-text-sm);
+  line-height: 1.5;
+}
+
+.auth-notice.warning {
+  background: var(--vscode-inputValidation-warningBackground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+}
+
+.auth-notice.success {
+  background: var(--vscode-testing-iconPassed);
+  border: 1px solid var(--vscode-testing-iconPassed);
+}
+
+.auth-notice.info {
+  background: var(--vscode-inputValidation-infoBackground);
+  border: 1px solid var(--vscode-inputValidation-infoBorder);
+}
+
+.inline-action-link {
+  background: none;
+  border: none;
+  color: var(--vscode-textLink-foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--auth-font-compact);
+  font-size: var(--auth-text-sm);
+  min-width: 85px;
+  display: inline-block;
+}
+
+.inline-action-link:hover:not(:disabled) {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+.inline-action-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.loading-text {
+  font-family: var(--auth-font-compact);
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+  font-size: var(--auth-text-sm);
+}
+
+.docs-link {
+  color: var(--vscode-textLink-foreground);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.docs-link:hover {
+  text-decoration: underline;
+}

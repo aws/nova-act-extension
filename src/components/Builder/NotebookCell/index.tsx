@@ -126,6 +126,14 @@ export const NotebookCell: React.FC<NotebookCellProps> = ({
       });
 
       updateHeight();
+
+      // Monaco needs time to calculate wrapped line heights after creation.
+      // Double RAF ensures layout calculations complete before measuring.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          updateHeight();
+        });
+      });
     });
   }
 
@@ -142,6 +150,12 @@ export const NotebookCell: React.FC<NotebookCellProps> = ({
 
   useEffect(() => {
     updateHeight();
+    // Double RAF handles tab switching and container resize timing
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        updateHeight();
+      });
+    });
   }, [containerWidth, cell.code]);
 
   // Listen for theme changes from VS Code
@@ -174,7 +188,20 @@ export const NotebookCell: React.FC<NotebookCellProps> = ({
         case 'pythonProcessReloaded':
         case 'getPreferenceValue':
         case 'setPreferenceValue':
-          // These messages are handled by NotebookPanel, not individual cells
+        case 'dependencyValidationResult':
+        case 'runtimeInvocationResult':
+        case 'invokeRuntimeResult':
+        case 'invokeRuntimeProgress':
+        case 'workflowOutputBuffer':
+        case 'awsCredentialsValidationResult':
+        case 'deploymentResult':
+        case 'validationResult':
+        case 'workflowScriptValidationResult':
+        case 'workflowListResult':
+        case 'apiKeyStatusResult':
+        case 'apiKeyResult':
+        case 'conversionApplied':
+          // These messages are handled by NotebookPanel/DeployTab/AuthenticationContext, not individual cells
           break;
 
         default:
