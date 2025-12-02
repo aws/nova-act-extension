@@ -2,6 +2,16 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.1.0] - 2025-12-02
+
+### Changed
+
+- Bump min install version for nova-act, boto3, and botocore dependencies
+
+### Fixed
+
+- initialize client variable in AWS Develop template
+
 ## [2.0.0] - 2025-12-01
 
 ### Added
@@ -65,4 +75,3 @@ All notable changes to the Nova Act extension will be documented in this file.
 ### Added
 
 - Initial Release of Nova Act Extension
-

@@ -205,6 +205,9 @@ import boto3
 from nova_act import NovaAct, Workflow
 
 
+# Create boto3 client for Nova Act workflow management
+client = boto3.client('nova-act')
+
 # Workflow configuration
 # Use lowercase letters, numbers, and hyphens only.
 WORKFLOW_NAME = "PLACEHOLDER"  # Change this to the workflow name you wish to use
