@@ -124,7 +124,7 @@ async function installNovaActFromPyPI(
 
   try {
     await execAsync(
-      `"${venvPythonPath}" -m pip install "nova_act[cli]" "boto3>=1.41.5" "botocore>=1.41.5" --upgrade`
+      `"${venvPythonPath}" -m pip install "nova_act[cli]>=3.0.5.0" "boto3>=1.42.1" "botocore>=1.42.1" --upgrade`
     );
     logger.log('Successfully installed nova_act[cli]');
   } catch (error) {
@@ -134,7 +134,7 @@ async function installNovaActFromPyPI(
     progress.report({ message: '⚠️ Retrying without CLI extras...' });
 
     await execAsync(
-      `"${venvPythonPath}" -m pip install "nova_act" "boto3>=1.41.5" "botocore>=1.41.5" --upgrade`
+      `"${venvPythonPath}" -m pip install "nova_act>=3.0.5.0" "boto3>=1.42.1" "botocore>=1.42.1" --upgrade`
     );
     logger.log('Successfully installed nova_act (base package)');
   }

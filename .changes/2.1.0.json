@@ -1,0 +1,13 @@
+{
+  "version": "2.1.0",
+  "changes": [
+    {
+      "type": "Fixed",
+      "description": "initialize client variable in AWS Develop template"
+    },
+    {
+      "type": "Changed",
+      "description": "Bump min install version for nova-act, boto3, and botocore dependencies"
+    }
+  ]
+}
