@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { CLEAR_ALL_PREFERENCE_KEY } from '../../../constants';
 import { useAgentMessages } from '../../../core/context/AgentMessagesContext';
+import { useAuthentication } from '../../../core/context/AuthenticationContext';
 import { useCells } from '../../../core/context/CellsContext';
 import { useFile } from '../../../core/context/FileContext';
+import { templates } from '../../../core/templates/templates';
 import { type Cell, type ChromeDevToolsTab } from '../../../core/types/builder';
 import {
   type CellEndMessage,
@@ -81,7 +83,10 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     deleteAllCells,
   } = useCells();
 
+  const { authMethod } = useAuthentication();
+
   const [clearDontRemind, setClearDontRemind] = useState(false);
+  const [manuallyCleared, setManuallyCleared] = useState(false);
 
   const { setFileContent, setFileLocation, setHasUnsavedChanges } = useFile();
 
@@ -96,12 +101,41 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     total: 0,
   });
   const [runAllAfterPythonRestart, setRunAllAfterPythonRestart] = useState(false);
+
+  const getTemplateForAuthMethod = (method: 'apiKey' | 'aws' | 'none') => {
+    if (method === 'apiKey') return templates['starter-pack'];
+    if (method === 'aws') return templates['act-workflow'];
+    return null;
+  };
+
   useEffect(() => {
     if (runAllAfterPythonRestart) {
       if (cells.length > 0) runAllCells();
       setRunAllAfterPythonRestart(false);
     }
   }, [runAllAfterPythonRestart]);
+
+  useEffect(() => {
+    if (cells.length === 0 && authMethod !== 'none' && !manuallyCleared) {
+      const template = getTemplateForAuthMethod(authMethod);
+      if (template?.cells) {
+        logger.debug(`Auto-loading ${authMethod} template with ${template.cells.length} cells`);
+        addCells(template.cells);
+      }
+    }
+  }, [authMethod, cells.length, manuallyCleared, addCells]);
+
+  useEffect(() => {
+    if (manuallyCleared) {
+      setManuallyCleared(false);
+    }
+  }, [authMethod]);
+
+  useEffect(() => {
+    if (cells.length > 0 && manuallyCleared) {
+      setManuallyCleared(false);
+    }
+  }, [cells.length, manuallyCleared]);
 
   const notebookContainerRef = useRef<HTMLDivElement>(null);
   const cellCompletionCallbacks = useRef<Map<string, (success: boolean) => void>>(new Map());
@@ -195,6 +229,7 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
   }, []);
 
   const handleClearClick = () => {
+    setManuallyCleared(true);
     if (clearDontRemind) {
       deleteAllCells();
       addCell({});
@@ -675,6 +710,7 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
             dontRemind={clearDontRemind}
             setDontRemind={setClearDontRemind}
             onConfirm={() => {
+              setManuallyCleared(true);
               builderModeVscodeApi.postMessage({
                 command: 'setPreference',
                 key: CLEAR_ALL_PREFERENCE_KEY,

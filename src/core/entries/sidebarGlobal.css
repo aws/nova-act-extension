@@ -6,7 +6,7 @@ body {
 }
 
 .welcome-section {
-  text-align: center;
+  text-align: left;
 }
 
 .welcome-section h1 {
@@ -21,7 +21,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .section-divider {

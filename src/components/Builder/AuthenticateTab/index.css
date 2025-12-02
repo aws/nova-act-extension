@@ -1,0 +1,58 @@
+/* Typography Scale - Aligned with DeployTab */
+:root {
+  --auth-font-primary: 'SF Pro Text', var(--vscode-font-family);
+  --auth-font-compact: 'SF Compact', var(--vscode-font-family);
+
+  --auth-text-lg: 13px;
+  --auth-text-sm: 11px;
+  --auth-weight-medium: 500;
+  --auth-weight-normal: 457;
+}
+
+.authenticate-tab {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  gap: 16px;
+}
+
+.authenticate-tab-centered-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.authenticate-tab-header {
+  text-align: left;
+}
+
+.authenticate-tab-header h1 {
+  font-family: var(--auth-font-primary);
+  font-size: 16px;
+  font-weight: var(--auth-weight-medium);
+  margin: 0 0 8px 0;
+}
+
+.authenticate-tab-header p {
+  font-family: var(--auth-font-compact);
+  color: var(--vscode-descriptionForeground);
+  font-size: var(--auth-text-sm);
+  line-height: 135%;
+  margin: 0;
+}
+
+.authenticate-columns {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 700px) {
+  .authenticate-columns {
+    flex-direction: column;
+  }
+}

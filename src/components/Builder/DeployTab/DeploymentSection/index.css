@@ -1,0 +1,63 @@
+/* Deploy Button Container */
+.deploy-button-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Package Deploy Button */
+.package-deploy-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 6px 8px;
+  gap: 8px;
+  width: 210px;
+  height: 28px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid var(--vscode-button-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.package-deploy-button:hover:not(:disabled) {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.package-deploy-button.disabled {
+  background: #454545;
+  cursor: not-allowed;
+}
+
+.package-deploy-button.disabled span {
+  color: var(--vscode-descriptionForeground);
+}
+
+.package-deploy-button span {
+  height: 16px;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: var(--deploy-line-height-tight);
+  color: inherit;
+}
+
+.deployment-output-section {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--deploy-max-content-width);
+  gap: 0;
+  padding-bottom: 16px;
+}
+
+.run-workflow-link-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.run-workflow-link-button .codicon {
+  font-size: 14px;
+}

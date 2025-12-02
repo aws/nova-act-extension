@@ -1,0 +1,12 @@
+.auth-action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.auth-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

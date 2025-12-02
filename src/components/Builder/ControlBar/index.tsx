@@ -1,8 +1,10 @@
 import { type ChangeEvent, useEffect, useState } from 'react';
 
 import { RESTART_NOTEBOOK_PREFERENCE_KEY } from '../../../constants';
+import { useAuthentication } from '../../../core/context/AuthenticationContext';
 import { useCells } from '../../../core/context/CellsContext';
 import { useFile } from '../../../core/context/FileContext';
+import { useIamIdentity } from '../../../core/context/IamIdentityContext';
 import { templates } from '../../../core/templates/templates';
 import { captureScriptLoadedTemplate, getPreference } from '../../../core/utils/builderModeUtils';
 import {
@@ -16,12 +18,17 @@ import { builderModeVscodeApi } from '../../../core/utils/vscodeApi';
 import logger from '../../webviewLogger';
 import { ConfirmationModal } from '../NotebookPanel/ConfirmationModal';
 import { Tooltip } from '../Tooltip';
+import { ApiKeySection } from './ApiKeySection';
+import { IamIdentitySection } from './IamIdentitySection';
 import './index.css';
 
 export const ControlBar = () => {
   const [showConfirmationModel, setShowConfirmationModal] = useState(false);
 
+  const { authMethod, apiKey, fetchApiKey } = useAuthentication();
+  const { iamIdentity, isRefreshing, refreshCredentials } = useIamIdentity();
   const [restartDontRemind, setRestartDontRemind] = useState(false);
+  const [isRefreshingApiKey, setIsRefreshingApiKey] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   const { cells, addCells, deleteAllCells } = useCells();
@@ -33,6 +40,22 @@ export const ControlBar = () => {
   useEffect(() => {
     getPreference(RESTART_NOTEBOOK_PREFERENCE_KEY).then((value) => setRestartDontRemind(value));
   }, []);
+
+  useEffect(() => {
+    fetchApiKey();
+  }, []);
+
+  useEffect(() => {
+    if (authMethod === 'apiKey') {
+      handleRefreshApiKey();
+    }
+  }, [authMethod]);
+
+  const handleRefreshApiKey = () => {
+    setIsRefreshingApiKey(true);
+    fetchApiKey();
+    setTimeout(() => setIsRefreshingApiKey(false), 1000);
+  };
 
   const handleRestart = () => {
     logger.debug(`Restart requested - verifying if a cell is running`);
@@ -130,6 +153,16 @@ export const ControlBar = () => {
             </option>
           ))}
         </select>
+        <IamIdentitySection
+          iamIdentity={iamIdentity}
+          isRefreshing={isRefreshing}
+          onRefreshCredentials={refreshCredentials}
+        />
+        <ApiKeySection
+          apiKey={apiKey}
+          isRefreshing={isRefreshingApiKey}
+          onRefreshApiKey={handleRefreshApiKey}
+        />
       </div>
       <div className="right">
         <Tooltip content={'Restart Notebook'} position="left">

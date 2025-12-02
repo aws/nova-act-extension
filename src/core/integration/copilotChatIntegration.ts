@@ -10,6 +10,7 @@ import { NOVA_ACT_FORM_FILLING_TEMPLATE } from '../../chatTemplate/novaActV1Form
 import { NOVA_ACT_SEARCH_TEMPLATE } from '../../chatTemplate/novaActV1Search';
 import { NOVA_ACT_SHOPPING_TEMPLATE } from '../../chatTemplate/novaActV1Shopping';
 import { NOVA_ACT_QA_TESTS_TEMPLATE } from '../../chatTemplate/novaActV1UiQaTests';
+import { NOVA_ACT_WORKFLOW_TEMPLATE } from '../../chatTemplate/novaActV1Workflow';
 import { ChatCommands, Commands } from '../../constants';
 import { TelemetryClient } from '../telemetry/client';
 import { CopilotChatCommand, FeatureName, ImportSource } from '../telemetry/events';
@@ -42,6 +43,8 @@ export function copilotChatIntegration() {
         prompt = NOVA_ACT_QA_TESTS_TEMPLATE;
       } else if (request.command === ChatCommands.formfilling) {
         prompt = NOVA_ACT_FORM_FILLING_TEMPLATE;
+      } else if (request.command === ChatCommands.workflow) {
+        prompt = NOVA_ACT_WORKFLOW_TEMPLATE;
       }
 
       // Initialize the messages array for the API request.
@@ -128,6 +131,8 @@ export function copilotChatIntegration() {
           telemetryCommand = CopilotChatCommand.QA_TESTS;
         } else if (request.command === ChatCommands.formfilling) {
           telemetryCommand = CopilotChatCommand.FORM_FILLING;
+        } else if (request.command === ChatCommands.workflow) {
+          telemetryCommand = CopilotChatCommand.DEFAULT;
         }
 
         telemetryClient.captureChatMessageSent(telemetryCommand);

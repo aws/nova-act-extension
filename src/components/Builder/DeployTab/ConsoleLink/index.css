@@ -1,0 +1,30 @@
+.console-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  gap: 8px;
+  min-width: 210px;
+  max-width: 320px;
+  height: 28px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid var(--vscode-button-border);
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: var(--deploy-line-height-tight);
+}
+
+.console-link-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.button-text {
+  height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

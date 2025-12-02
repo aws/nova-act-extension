@@ -3,7 +3,7 @@
   "displayName": "Nova Act",
   "description": "AI-powered automation extension for IDE. Generate, debug, and run web automation scripts with natural language commands.",
   "publisher": "amazonwebservices",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "license": "Apache-2.0",
   "extensionKind": [
     "ui"
@@ -90,79 +90,112 @@
         "description": "Learn how to use Nova Act for browser automation",
         "steps": [
           {
-            "id": "setupAPIKey",
-            "title": "Set up your Nova Act API key",
+            "id": "authenticate",
+            "title": "Authenticate: Choose Your Path",
+            "description": "Set up API Key for local development or AWS Credentials for production",
             "media": {
-              "markdown": "resources/walkthrough/step1_api_key.md"
+              "markdown": "resources/walkthrough/step1_authenticate.md"
             },
             "completionEvents": [
               "onCommand:nova-agent-vs-code-ext.setApiKey"
             ]
           },
           {
-            "id": "setupCodeAssitant",
-            "title": "Use Github Copilot Code Participants to generate Nova Act workflows",
+            "id": "buildLocally",
+            "title": "Build: Develop and Test Locally",
+            "description": "Use the Build tab to create and debug workflows cell-by-cell",
             "media": {
-              "markdown": "resources/walkthrough/step2_code_assistant.md"
-            }
-          },
-          {
-            "id": "debugNovaAct",
-            "title": "Use the Builder to edit Nova Act workflows",
-            "media": {
-              "markdown": "resources/walkthrough/step3_builder_mode.md"
+              "markdown": "resources/walkthrough/step2_build.md"
             },
             "completionEvents": [
               "onCommand:nova-agent-vs-code-ext.showBuilderMode"
             ]
+          },
+          {
+            "id": "deployToAWS",
+            "title": "Deploy: Move Your Workflow to AWS (Optional)",
+            "description": "Deploy workflows to AWS with one-click containerization",
+            "media": {
+              "markdown": "resources/walkthrough/step3_deploy.md"
+            }
+          },
+          {
+            "id": "runAtScale",
+            "title": "Run: Execute and Monitor Remote Workflows (Optional)",
+            "description": "Run deployed workflows with custom payloads and real-time logs",
+            "media": {
+              "markdown": "resources/walkthrough/step4_run.md"
+            }
           }
         ]
       },
       {
         "id": "novaAgentKiroWalkthrough",
         "title": "Get Started with the Amazon Nova Act extension in Kiro",
-        "description": "Learn how to use Nova Act for browser automation in Kiro IDE",
+        "description": "Learn the complete workflow lifecycle in Kiro IDE",
         "steps": [
           {
-            "id": "kiroAPIKey",
-            "title": "Set up your Nova Act API key",
+            "id": "kiroAuthenticate",
+            "title": "Authenticate: Choose Your Path",
             "media": {
-              "markdown": "resources/walkthrough/step1_api_key.md"
+              "markdown": "resources/walkthrough/step1_authenticate.md"
             }
           },
           {
-            "id": "debugNovaActKiro",
-            "title": "Use the Builder to edit Nova Act workflows in Kiro",
+            "id": "kiroBuildLocally",
+            "title": "Build: Develop and Test Locally",
             "media": {
-              "markdown": "resources/walkthrough/step3_builder_mode.md"
+              "markdown": "resources/walkthrough/step2_build.md"
+            }
+          },
+          {
+            "id": "kiroDeployToAWS",
+            "title": "Deploy: Move Your Workflow to AWS (Optional)",
+            "media": {
+              "markdown": "resources/walkthrough/step3_deploy.md"
+            }
+          },
+          {
+            "id": "kiroRunAtScale",
+            "title": "Run: Execute and Monitor Remote Workflows (Optional)",
+            "media": {
+              "markdown": "resources/walkthrough/step4_run.md"
             }
           }
         ]
       },
       {
         "id": "novaAgentGenericWalkthrough",
-        "title": "Get Started with the Amazon Nova Act extension in Kiro",
-        "description": "Learn how to use Nova Act for browser automation",
+        "title": "Get Started with the Amazon Nova Act extension",
+        "description": "Learn the complete workflow lifecycle",
         "steps": [
           {
-            "id": "genericSetupAPIKey",
-            "title": "Set up your Nova Act API key",
+            "id": "genericAuthenticate",
+            "title": "Authenticate: Choose Your Path",
             "media": {
-              "markdown": "resources/walkthrough/step1_api_key.md"
-            },
-            "completionEvents": [
-              "onCommand:nova-agent-vs-code-ext.setApiKey"
-            ]
+              "markdown": "resources/walkthrough/step1_authenticate.md"
+            }
           },
           {
-            "id": "genericDebugNovaAct",
-            "title": "Use the Builder to edit Nova Act workflows",
+            "id": "genericBuildLocally",
+            "title": "Build: Develop and Test Locally",
             "media": {
-              "markdown": "resources/walkthrough/step3_builder_mode.md"
-            },
-            "completionEvents": [
-              "onCommand:nova-agent-vs-code-ext.showBuilderMode"
-            ]
+              "markdown": "resources/walkthrough/step2_build.md"
+            }
+          },
+          {
+            "id": "genericDeployToAWS",
+            "title": "Deploy: Move Your Workflow to AWS (Optional)",
+            "media": {
+              "markdown": "resources/walkthrough/step3_deploy.md"
+            }
+          },
+          {
+            "id": "genericRunAtScale",
+            "title": "Run: Execute and Monitor Remote Workflows (Optional)",
+            "media": {
+              "markdown": "resources/walkthrough/step4_run.md"
+            }
           }
         ]
       }
@@ -181,12 +214,28 @@
         "title": "Nova Act: View Step Details"
       },
       {
+        "command": "nova-agent-vs-code-ext.viewWorkflowDocumentation",
+        "title": "Nova Act: View Workflow Documentation"
+      },
+      {
         "command": "nova-agent-vs-code-ext.updateOrInstallWheel",
         "title": "Nova Act: Update or Install Nova Act Wheel"
       },
       {
         "command": "nova-agent-vs-code-ext.showBuilderMode",
         "title": "Nova Act: Builder Mode"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.showBuilderModeAuthenticate",
+        "title": "Nova Act: Authenticate"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.showBuilderModeDeploy",
+        "title": "Nova Act: Deploy Workflow"
+      },
+      {
+        "command": "nova-agent-vs-code-ext.showBuilderModeRun",
+        "title": "Nova Act: Run Workflows"
       },
       {
         "command": "nova-agent-vs-code-ext.setApiKey",
@@ -260,6 +309,10 @@
           {
             "name": "formfilling",
             "description": "Automate form filling workflows"
+          },
+          {
+            "name": "workflow",
+            "description": "Create AWS Workflows for deployment"
           }
         ]
       }
@@ -278,6 +331,11 @@
           "minimum": 1024,
           "maximum": 65535,
           "description": "Port number for Nova Act WebSocket server communication"
+        },
+        "novaAct.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to the Nova Act CLI executable (e.g., /usr/local/bin/act). If not set, the extension will auto-detect the CLI from common locations."
         }
       }
     },

@@ -382,6 +382,79 @@ describe('ActionViewerProviderUtils Tests', () => {
     });
   });
 
+  describe('parseCallsJsonData - New Format', () => {
+    it('should parse new format with metadata at root', () => {
+      const jsonData = {
+        steps: [
+          {
+            request: {
+              prompt: 'Test prompt',
+              metadata: {
+                activeURL: 'https://example.com',
+              },
+            },
+            response: {
+              rawProgramBody: 'action body',
+            },
+          },
+        ],
+        metadata: {
+          session_id: 'session123',
+          act_id: 'act456',
+          prompt: 'Test prompt',
+        },
+      };
+
+      const result = parseCallsJsonData(jsonData, '/path/test_calls.json', false);
+
+      assert.ok(result);
+      assert.strictEqual(result.actId, 'act456');
+      assert.strictEqual(result.sessionId, 'session123');
+      assert.strictEqual(result.prompt, 'Test prompt');
+      assert.strictEqual(result.steps.length, 1);
+    });
+
+    it('should handle new format with missing metadata fields', () => {
+      const jsonData = {
+        steps: [
+          {
+            request: {},
+            response: {},
+          },
+        ],
+        metadata: {},
+      };
+
+      const result = parseCallsJsonData(jsonData, '/path/test_calls.json', false);
+
+      assert.ok(result);
+      assert.strictEqual(result.actId, 'test');
+      assert.strictEqual(result.prompt, 'No prompt available');
+    });
+
+    it('should handle new format with multiple steps', () => {
+      const jsonData = {
+        steps: [
+          { request: {}, response: { rawProgramBody: 'step1' } },
+          { request: {}, response: { rawProgramBody: 'step2' } },
+          { request: {}, response: { rawProgramBody: 'step3' } },
+        ],
+        metadata: {
+          session_id: 'multi-session',
+          act_id: 'multi-act',
+          prompt: 'Multi-step task',
+        },
+      };
+
+      const result = parseCallsJsonData(jsonData, '/path/test.json', false);
+
+      assert.ok(result);
+      assert.strictEqual(result.steps.length, 3);
+      assert.strictEqual(result.steps[0]?.actionData, 'step1');
+      assert.strictEqual(result.steps[2]?.actionData, 'step3');
+    });
+  });
+
   describe('findCorrespondingJsonFile', () => {
     it('should find corresponding JSON file', () => {
       const htmlFile = path.join(tempDir, 'act_test.html');

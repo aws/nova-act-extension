@@ -1,0 +1,511 @@
+/* CSS Custom Properties - Typography Scale */
+:root {
+  /* Typography Scale */
+  --deploy-font-primary: var(--vscode-font-family);
+  --deploy-font-compact: var(--vscode-font-family);
+  --deploy-font-mono: 'SF Mono', var(--vscode-editor-font-family);
+
+  --deploy-text-lg: 13px;
+  --deploy-text-sm: 11px;
+  --deploy-weight-medium: 500;
+  --deploy-weight-normal: 457;
+  --deploy-weight-light: 400;
+  --deploy-line-height-tight: 16px;
+  --deploy-line-height-normal: 135%;
+  --deploy-line-height-mono: 13px;
+
+  /* Layout Constraints */
+  --deploy-width-full: 100%;
+  --deploy-max-content-width: 600px;
+  --deploy-min-content-width: 300px;
+  --deploy-form-max-width: 600px;
+  --deploy-width-narrow: 143px;
+}
+
+/* Shared Typography Classes */
+.text-primary {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-foreground);
+}
+
+.text-secondary {
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: var(--deploy-line-height-normal);
+  color: var(--vscode-descriptionForeground);
+}
+
+.text-label {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-foreground);
+}
+
+.text-help {
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+}
+
+.text-button {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: var(--deploy-line-height-tight);
+  color: inherit;
+}
+
+/* Unified container for content width management */
+.deploy-content-container {
+  width: 100%;
+  max-width: 600px; /* Optimal width based on content analysis */
+  min-width: 400px;
+  margin: 0 auto;
+}
+
+/* Narrower container for credential setup */
+.credential-content-container {
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+  --deploy-max-content-width: 400px;
+  --deploy-min-content-width: 250px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .deploy-content-container {
+    max-width: 95%;
+    min-width: 300px;
+  }
+
+  .credential-content-container {
+    max-width: 95%;
+  }
+}
+
+/* Semantic Spacing Classes */
+.spacing-tight {
+  gap: 4px;
+}
+
+.spacing-normal {
+  gap: 8px;
+}
+
+.spacing-loose {
+  gap: 8px;
+}
+
+/* Deploy Tab Wrapper - Consistent margins with vertical divider */
+.deploy-tab-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px;
+}
+
+/* Deploy Tab Container - Content-driven heights with state feedback */
+.deploy-tab-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 12px;
+  gap: 16px;
+  width: 100%;
+  min-height: 400px;
+  height: auto;
+  max-height: 100%;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* State-specific visual feedback */
+/* Removed blue outline during deployment to reduce visual distractions */
+/* .deploy-tab-container.deploying::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--vscode-progressBar-background);
+  z-index: 1;
+} */
+
+/* Pulse animation for invalid credential states */
+.deploy-tab-container.invalid .credential-status {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Universal constraint to prevent child overflow */
+.deploy-tab-container * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ExpandableSection wrapper - defined after universal selector to override max-width constraint */
+.expandable-section-wrapper {
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+}
+
+/* Deploy Tab Content */
+.deploy-tab-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* State Container */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+}
+
+.state-container > .newcomer-section {
+  margin-top: -8px;
+}
+
+/* Text Styles - Exact from ux_iterations.md */
+.intro-text-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+  margin-bottom: 16px;
+}
+
+.intro-text-group p {
+  margin: 0;
+}
+
+.instruction-text {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+}
+
+.prerequisites-text {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+}
+
+.error-message {
+  font-style: italic;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-errorForeground);
+  width: 100%;
+  opacity: 1;
+}
+
+/* Steps Section */
+.steps-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+}
+
+.step-text {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  margin: 0;
+}
+
+.post-validation-text {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  margin: 0;
+}
+
+.installer-link {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: underline;
+}
+
+.installer-link:hover {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+/* Next Button - _Button */
+.next-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 11px;
+  gap: 10px;
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+  height: 28px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid var(--vscode-button-border);
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+.next-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.next-button span {
+  width: 30px;
+  height: 16px;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* Newcomer Section */
+.newcomer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+}
+
+.newcomer-title {
+  width: 92px;
+  height: 10px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--vscode-foreground);
+}
+
+.create-account-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 8px;
+  width: 302px;
+  height: 21px;
+  background: #f5f5f5;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.create-account-button span {
+  width: 103px;
+  height: 12px;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #474b50;
+}
+
+/* Deploy Heading */
+.deploy-instructions {
+  width: 100%;
+  height: auto;
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+  margin: 0;
+}
+
+.deploy-steps-list {
+  margin: 0 0 0 16px;
+  padding: 0;
+  color: var(--vscode-descriptionForeground);
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+}
+
+.deploy-step {
+  margin-bottom: 4px;
+}
+
+/* Section Divider */
+.section-divider-container {
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  display: flex;
+  margin: 8px 0;
+}
+
+.section-divider {
+  width: 100%;
+  max-width: 100%;
+  height: 1px;
+  background: #454545;
+}
+
+/* Form Row */
+.form-row {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: var(--deploy-text-lg);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-foreground);
+  white-space: nowrap;
+}
+
+/* Deployment Form Container */
+.deployment-form-container {
+  width: 100%;
+  max-width: var(--deploy-form-max-width);
+  border-radius: 6px;
+  padding: 2px 0;
+  margin: 0;
+}
+
+/* Base Form Control - Unified styling for all form inputs */
+.form-control {
+  min-height: 2.1em;
+  max-height: 2.1em;
+  padding: 5px 8px;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-size: var(--deploy-text-sm);
+  line-height: var(--deploy-line-height-mono);
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: var(--vscode-focusBorder);
+}
+
+/* Form Input - _Text Field */
+.form-input {
+  align-items: center;
+}
+
+.form-input.error {
+  border: 1px solid var(--vscode-errorForeground);
+}
+
+.form-input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+  opacity: 0.6;
+}
+
+/* Validation Error */
+.validation-error {
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: 1.5;
+  color: var(--vscode-errorForeground);
+  margin-top: 4px;
+}
+
+/* Form Dropdown - _Dropdown */
+.form-dropdown {
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.deploy-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--deploy-max-content-width);
+  min-width: var(--deploy-min-content-width);
+}
+
+.deploy-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Credential refresh styles - updated for overlay controls */
+
+.credential-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--vscode-inputValidation-warningBackground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+/* Overlay Control System - Based on NotebookCell patterns */
+.deploy-section {
+  position: relative;
+}
+
+/* Mobile responsive layout */
+@media (max-width: 500px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

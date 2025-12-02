@@ -52,9 +52,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             try {
               // Hide the sidebar to give full screen to Builder Mode
               await vscode.commands.executeCommand(VSCodeCommands.closeSidebar);
-              // Open Builder Mode
+              // Build Workflows
               openBuilderMode(this.context, {
                 initialContent: message.template?.cells,
+                initialTab: message.initialTab,
               });
             } catch (error) {
               logger.error(`Failed to execute builderMode commands: ${error}`);
@@ -72,6 +73,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             break;
           case 'openCopilotWithPrompt':
             try {
+              if (!this.isCopilotAvailable()) {
+                vscode.window.showWarningMessage(
+                  'Please enable GitHub Copilot to use script generation'
+                );
+                return;
+              }
               // Hide the sidebar to give full screen to Builder Mode
               await vscode.commands.executeCommand(VSCodeCommands.closeSidebar);
               // Open Copilot Chat with the prompt directly
@@ -80,6 +87,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
               });
             } catch (error) {
               logger.error(`Failed to execute openCopilotWithPrompt commands: ${error}`);
+              vscode.window.showErrorMessage(
+                'Failed to open GitHub Copilot. Please ensure it is installed and enabled.'
+              );
             }
             break;
           case 'setApiKey':
@@ -107,6 +117,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         logger.error(`Error handling sidebar message: ${error}`);
       }
     });
+  }
+
+  private isCopilotAvailable(): boolean {
+    const copilotExtension = vscode.extensions.getExtension('github.copilot');
+    return copilotExtension !== undefined && copilotExtension.isActive;
   }
 
   private async sendInitMessage() {

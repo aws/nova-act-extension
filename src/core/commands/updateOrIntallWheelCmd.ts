@@ -62,9 +62,9 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
           showError(errorMsg);
         }
 
-        // Step 4: Install nova-act
+        // Step 4: Install nova-act from PyPI
         progress.report({ message: '⬇️ Installing NovaAct...' });
-        await execAsync(`"${venvPythonPath}" -m pip install nova_act --upgrade`);
+        await installNovaActFromPyPI(venvPythonPath, progress);
         progress.report({ increment: 10, message: '📦 NovaAct installed' });
 
         // Step 5: Install websockets
@@ -114,4 +114,28 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
       }
     }
   );
+}
+
+async function installNovaActFromPyPI(
+  venvPythonPath: string,
+  progress: vscode.Progress<{ message?: string; increment?: number }>
+): Promise<void> {
+  logger.log('Attempting to install nova_act[cli] from PyPI');
+
+  try {
+    await execAsync(
+      `"${venvPythonPath}" -m pip install "nova_act[cli]" "boto3>=1.41.5" "botocore>=1.41.5" --upgrade`
+    );
+    logger.log('Successfully installed nova_act[cli]');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.log(`[cli] installation failed: ${errorMessage}`);
+    logger.log('Falling back to nova_act without [cli] extra');
+    progress.report({ message: '⚠️ Retrying without CLI extras...' });
+
+    await execAsync(
+      `"${venvPythonPath}" -m pip install "nova_act" "boto3>=1.41.5" "botocore>=1.41.5" --upgrade`
+    );
+    logger.log('Successfully installed nova_act (base package)');
+  }
 }

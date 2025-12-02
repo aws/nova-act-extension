@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 
-import { concatMessage, convertErrorToString } from '../../core/utils/utils';
+import { concatMessage, convertErrorToString, validateJsonPayload } from '../../core/utils/utils';
 import '../setup';
 
 describe('Utils Test Suite', () => {
@@ -94,6 +94,57 @@ describe('Utils Test Suite', () => {
       const result = concatMessage(message);
       assert.strictEqual(result.length, 503); // 500 + '...'
       assert.strictEqual(result.slice(-3), '...');
+    });
+  });
+
+  describe('validateJsonPayload', () => {
+    it('should return true for valid JSON string', () => {
+      const validJson = '{"key": "value", "number": 42}';
+      const result = validateJsonPayload(validJson);
+      assert.strictEqual(result, true);
+    });
+
+    it('should return true for valid JSON array', () => {
+      const validJsonArray = '[1, 2, 3, "test"]';
+      const result = validateJsonPayload(validJsonArray);
+      assert.strictEqual(result, true);
+    });
+
+    it('should return true for simple JSON values', () => {
+      assert.strictEqual(validateJsonPayload('true'), true);
+      assert.strictEqual(validateJsonPayload('false'), true);
+      assert.strictEqual(validateJsonPayload('null'), true);
+      assert.strictEqual(validateJsonPayload('42'), true);
+      assert.strictEqual(validateJsonPayload('"string"'), true);
+    });
+
+    it('should return false for invalid JSON', () => {
+      const invalidJson = '{"key": value}'; // missing quotes around value
+      const result = validateJsonPayload(invalidJson);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false for malformed JSON', () => {
+      const malformedJson = '{"key": "value",}'; // trailing comma
+      const result = validateJsonPayload(malformedJson);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false for empty string', () => {
+      const result = validateJsonPayload('');
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false for plain text', () => {
+      const plainText = 'This is not JSON';
+      const result = validateJsonPayload(plainText);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false for unclosed braces', () => {
+      const unclosedJson = '{"key": "value"';
+      const result = validateJsonPayload(unclosedJson);
+      assert.strictEqual(result, false);
     });
   });
 });

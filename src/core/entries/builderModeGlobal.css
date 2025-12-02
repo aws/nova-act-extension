@@ -105,6 +105,7 @@ button:disabled {
   border-color: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
   background-color: var(--vscode-input-background);
+  cursor: not-allowed;
 }
 
 button.warning {

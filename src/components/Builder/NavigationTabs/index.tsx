@@ -1,17 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useInitialTab } from '../../../core/context/InitialTabContext';
+import { TAB_NAMES } from '../../../core/types/sidebarMessages';
+import { AuthenticateTab } from '../AuthenticateTab';
 import { BrowserViewPanel } from '../BrowserViewPanel';
+import { DeployTab } from '../DeployTab';
 import { DeveloperTabs } from '../DeveloperTabs';
 import { NotebookPanel } from '../NotebookPanel';
+import { WorkflowsTab } from '../WorkflowsTab';
 import './index.css';
 
 const RESIZE_HANDLE_WIDTH = 12;
 
 export const NavigationTabs = () => {
-  const [activeTab, setActiveTab] = useState('build-run');
+  const { activeTab, navigateToTab } = useInitialTab();
   const [devToolsUrl, setDevToolsUrl] = useState('');
   const [browserIsExpanded, setBrowserIsExpanded] = useState(true);
   const [isOverlayVisible, setOverlayVisible] = useState(true);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg.type === 'init' && msg.initialTab) {
+        navigateToTab(msg.initialTab);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [navigateToTab]);
 
   // refs
   const leftColumnRef = useRef<HTMLDivElement>(null);
@@ -96,15 +113,44 @@ export const NavigationTabs = () => {
     <div className="tab-container">
       <div className="tab-header">
         <button
-          className={`tab-button ${activeTab === 'build-run' && 'active'}`}
-          data-tab="build-run"
-          onClick={() => setActiveTab('build-run')}
+          className={`tab-button ${activeTab === TAB_NAMES.AUTHENTICATE && 'active'}`}
+          data-tab="authenticate"
+          onClick={() => navigateToTab(TAB_NAMES.AUTHENTICATE)}
         >
-          Build and run
+          Authenticate
+        </button>
+        <button
+          className={`tab-button ${activeTab === TAB_NAMES.BUILD && 'active'}`}
+          data-tab="build"
+          onClick={() => navigateToTab(TAB_NAMES.BUILD)}
+        >
+          Build
+        </button>
+        <button
+          className={`tab-button ${activeTab === TAB_NAMES.DEPLOY && 'active'}`}
+          data-tab="deploy"
+          onClick={() => navigateToTab(TAB_NAMES.DEPLOY)}
+        >
+          Deploy
+        </button>
+        <button
+          className={`tab-button ${activeTab === TAB_NAMES.RUN_WORKFLOWS && 'active'}`}
+          data-tab="runWorkflows"
+          onClick={() => navigateToTab(TAB_NAMES.RUN_WORKFLOWS)}
+        >
+          Run
         </button>
       </div>
       <div className="tab-content">
-        <div id="build-run-tab" className="tab-pane active">
+        <div
+          id="authenticate-tab"
+          className={`tab-pane ${activeTab === TAB_NAMES.AUTHENTICATE ? 'active' : ''}`}
+        >
+          <main className="full-width-layout">
+            <AuthenticateTab />
+          </main>
+        </div>
+        <div id="build-tab" className={`tab-pane ${activeTab === TAB_NAMES.BUILD ? 'active' : ''}`}>
           <main ref={containerRef} className="two-column-layout">
             <div ref={leftColumnRef} className="left-column">
               <NotebookPanel
@@ -141,6 +187,22 @@ export const NavigationTabs = () => {
                 </section>
               </div>
             </div>
+          </main>
+        </div>
+        <div
+          id="deploy-tab"
+          className={`tab-pane ${activeTab === TAB_NAMES.DEPLOY ? 'active' : ''}`}
+        >
+          <main className="full-width-layout">
+            <DeployTab />
+          </main>
+        </div>
+        <div
+          id="runWorkflows-tab"
+          className={`tab-pane ${activeTab === TAB_NAMES.RUN_WORKFLOWS ? 'active' : ''}`}
+        >
+          <main className="full-width-layout">
+            <WorkflowsTab onNavigateToTab={navigateToTab} />
           </main>
         </div>
       </div>

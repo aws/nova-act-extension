@@ -1,0 +1,153 @@
+/* ActionForm Component Styles */
+
+.action-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-button-container {
+  display: flex;
+  align-items: center;
+}
+
+.status-text {
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  line-height: var(--deploy-line-height-normal);
+  margin-left: 12px;
+  white-space: nowrap;
+  color: var(--vscode-descriptionForeground);
+}
+
+.status-text.success {
+  color: var(--vscode-testing-iconPassed);
+}
+
+.status-text.error {
+  color: var(--vscode-testing-iconFailed);
+}
+
+.validation-feedback {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+}
+
+.validation-feedback.error {
+  color: var(--vscode-errorForeground);
+}
+
+.validation-feedback i {
+  font-size: 12px;
+}
+
+.warning-with-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.warning-with-action .workflow-name-warning {
+  flex: 1;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.warning-action-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.warning-action-button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.warning-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.warning-action-button i {
+  font-size: 12px;
+}
+
+.workflow-name-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 4px;
+  color: #ffc107;
+  font-size: var(--deploy-text-sm);
+  font-weight: var(--deploy-weight-medium);
+}
+
+.workflow-name-warning.enhanced {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--vscode-inputValidation-warningBackground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+  border-radius: 4px;
+}
+
+.workflow-name-warning svg {
+  color: #ffc107;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workflow-docs-link {
+  background: none;
+  border: none;
+  color: var(--vscode-textLink-foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  margin-left: 8px;
+}
+
+.workflow-docs-link:hover {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+.workflow-docs-link:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+.additional-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

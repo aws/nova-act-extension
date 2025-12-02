@@ -1,0 +1,65 @@
+{
+  "version": "2.0.0",
+  "changes": [
+    {
+      "type": "Added",
+      "description": "Authentication tab with IAM identity and API key management"
+    },
+    {
+      "type": "Added",
+      "description": "Deploy tab for workflow deployment to AWS"
+    },
+    {
+      "type": "Added",
+      "description": "Run tab for managing deployed workflows"
+    },
+    {
+      "type": "Added",
+      "description": "Step-by-step walkthrough guides for authentication, building, deploying, and running workflows"
+    },
+    {
+      "type": "Added",
+      "description": "IAM identity section in control bar"
+    },
+    {
+      "type": "Added",
+      "description": "Code lens provider for workflow files"
+    },
+    {
+      "type": "Added",
+      "description": "Nova Act CLI integration for workflow deployment"
+    },
+    {
+      "type": "Added",
+      "description": "Workflow documentation viewer"
+    },
+    {
+      "type": "Added",
+      "description": "Template support for new workflows"
+    },
+    {
+      "type": "Changed",
+      "description": "Complete UX overhaul with new navigation tabs structure"
+    },
+    {
+      "type": "Changed",
+      "description": "Updated control bar with authentication sections"
+    },
+    {
+      "type": "Changed",
+      "description": "Enhanced builder mode with multi-tab support"
+    },
+    {
+      "type": "Changed",
+      "description": "Updated templates to use Nova Act gym"
+    },
+    {
+      "type": "Changed",
+      "description": "Improved action viewer and debugging experience. Why did the developer go broke? Because they used up all their cache!"
+    },
+    {
+      "type": "Fixed",
+      "description": "Fixed action viewer for newer SDK versions"
+    }
+  ]
+}

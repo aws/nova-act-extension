@@ -21,6 +21,7 @@
 # Include resources
 !resources/logo/*
 !resources/walkthrough/*
+!resources/wheels/*
 !docs/**
 
 # Include Python scripts needed at runtime

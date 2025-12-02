@@ -51,6 +51,11 @@ def stop_worker():
         _async_raise(worker_thread.ident, KeyboardInterrupt)
 
 
+def sanitize_for_json(s: str) -> str:
+    """Remove unpaired surrogates that would break UTF-8 encoding."""
+    return s.encode('utf-8', errors='replace').decode('utf-8')
+
+
 class CapturingStream(io.TextIOBase):
     """Stream that captures output and sends it via a callback."""
 
@@ -60,17 +65,18 @@ class CapturingStream(io.TextIOBase):
 
     def write(self, s):
         if s:
+            sanitized = sanitize_for_json(s)
             self.send_callback(
                 {
                     "type": (
                         "stdout" if self.original_stream is sys.__stdout__ else "stderr"
                     ),
-                    "data": s,
+                    "data": sanitized,
                     "cellId": cell_id,
                     "success": True,
                 }
             )
-            self.original_stream.write(s)
+            self.original_stream.write(sanitized)
             self.original_stream.flush()
         return len(s)
 
@@ -186,7 +192,14 @@ def handler(ws: ServerConnection):
     collecting = False
 
     def send_json(data):
-        ws.send(json.dumps(data))
+        # Sanitize all string values in the data dict
+        sanitized_data = {}
+        for key, value in data.items():
+            if isinstance(value, str):
+                sanitized_data[key] = sanitize_for_json(value)
+            else:
+                sanitized_data[key] = value
+        ws.send(json.dumps(sanitized_data))
 
     if not worker_thread:
         worker_thread = threading.Thread(target=worker_loop, daemon=True)

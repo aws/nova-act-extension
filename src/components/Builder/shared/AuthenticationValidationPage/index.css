@@ -1,0 +1,86 @@
+/* Credential Validation - Exact copy from DeployTab */
+.credential-validation-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  height: 100%;
+}
+
+.notice-icon {
+  font-size: 48px;
+  color: var(--vscode-inputValidation-warningForeground);
+  margin-bottom: 16px;
+}
+
+.credential-validation-notice h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--vscode-foreground);
+}
+
+.credential-validation-notice p {
+  color: var(--vscode-descriptionForeground);
+  font-size: 14px;
+  margin-bottom: 24px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.credential-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.retry-credentials-button,
+.authenticate-link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  flex: 1;
+}
+
+.retry-credentials-button {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+.retry-credentials-button:hover:not(:disabled) {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.retry-credentials-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.authenticate-link-button {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+}
+
+.authenticate-link-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.authenticate-link-button:active {
+  opacity: 0.9;
+}
+
+.retry-credentials-button i,
+.authenticate-link-button i {
+  font-size: 16px;
+}

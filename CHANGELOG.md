@@ -2,6 +2,32 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.0.0] - 2025-12-01
+
+### Added
+
+- Authentication tab with IAM identity and API key management
+- Deploy tab for workflow deployment to AWS
+- Run tab for managing deployed workflows
+- Step-by-step walkthrough guides for authentication, building, deploying, and running workflows
+- IAM identity section in control bar
+- Code lens provider for workflow files
+- Nova Act CLI integration for workflow deployment
+- Workflow documentation viewer
+- Template support for new workflows
+
+### Changed
+
+- Complete UX overhaul with new navigation tabs structure
+- Updated control bar with authentication sections
+- Enhanced builder mode with multi-tab support
+- Updated templates to use Nova Act gym
+- Improved action viewer and debugging experience. Why did the developer go broke? Because they used up all their cache!
+
+### Fixed
+
+- Fixed action viewer for newer SDK versions
+
 ## [1.3.0] - 2025-10-17
 
 ### Changed

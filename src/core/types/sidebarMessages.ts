@@ -5,9 +5,19 @@ import { type CommonToExtensionMessage } from './commonMessages';
 /* -------------------------------------------------------------------------- */
 /*                Messages FROM sidebar webview TO extension               */
 /* -------------------------------------------------------------------------- */
+export const TAB_NAMES = {
+  AUTHENTICATE: 'authenticate',
+  BUILD: 'build',
+  DEPLOY: 'deploy',
+  RUN_WORKFLOWS: 'runWorkflows',
+} as const;
+
+export type TabName = (typeof TAB_NAMES)[keyof typeof TAB_NAMES];
+
 export interface BuilderModeCommand {
   command: 'builderMode';
   template?: Template;
+  initialTab?: TabName;
 }
 
 export interface OpenCopilotCommand {
