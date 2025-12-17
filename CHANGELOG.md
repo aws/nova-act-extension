@@ -2,6 +2,23 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.2.0] - 2025-12-17
+
+### Added
+
+- add python compilation unit tests on templates
+
+### Changed
+
+- change AuthenticationValidationPage alignment from center to top-left
+- remove-dead-code
+
+### Fixed
+
+- disable any retries when running workflows and increase read timeout
+- simplify iam auth check
+- set Builder Mode to open 'build' tab from Copilot Chat button
+
 ## [2.1.0] - 2025-12-02
 
 ### Changed

@@ -90,10 +90,6 @@ export interface DeployScript {
   executionRoleArn?: string;
 }
 
-export interface ValidateDependencies {
-  command: 'validateDependencies';
-}
-
 export interface InvokeRuntime {
   command: 'invokeRuntime';
   name: string;
@@ -183,7 +179,6 @@ export type BuilderModeToExtensionMessage =
   | GetPreference
   | SetPreference
   | DeployScript
-  | ValidateDependencies
   | InvokeRuntime
   | ListWorkflows
   | SetActiveWorkflow

@@ -178,11 +178,6 @@ export class BuilderModeProvider {
           break;
         }
 
-        case 'validateDependencies': {
-          this.novaActCliProvider.handleValidateDependencies(this.panel.webview);
-          break;
-        }
-
         case 'invokeRuntime': {
           this.novaActCliProvider.handleInvokeRuntime(message, this.panel.webview);
           break;
@@ -812,33 +807,6 @@ export class BuilderModeProvider {
       }
     } else {
       logger.log('Python WebSocket not connected; API key will be set when backend connects.');
-    }
-  }
-
-  private async handleValidateDependencies(webview: vscode.Webview) {
-    try {
-      const docker = await this.novaActCliProvider.validateDocker();
-      const novaActCLI = await this.novaActCliProvider.validateCli(this.novaActPath);
-      const awsCredentials = await this.novaActCliProvider.validateAwsCredentials();
-
-      const errors: string[] = [];
-      if (!docker) errors.push('Docker not found or not running');
-      if (!novaActCLI) errors.push('Nova Act CLI not found or invalid');
-      if (!awsCredentials) errors.push('AWS credentials not configured');
-
-      webview.postMessage({
-        type: 'dependencyValidationResult',
-        valid: errors.length === 0,
-        errors,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Dependency validation failed: ${errorMessage}`);
-      webview.postMessage({
-        type: 'dependencyValidationResult',
-        valid: false,
-        errors: [`Validation error: ${errorMessage}`],
-      });
     }
   }
 

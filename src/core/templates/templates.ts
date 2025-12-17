@@ -153,7 +153,7 @@ result = nova.act_get(
 
 if result.matches_schema:
     flight_info = result.parsed_response
-    print(f"Cheapest flight: {flight_info['flight_number']} - $" + "{flight_info['price']}")
+    print(f"Cheapest flight: {flight_info['flight_number']} - {flight_info['price']}")
 else:
     print(f"Raw response: {result.parsed_response}")`,
     `# nova.stop()`,

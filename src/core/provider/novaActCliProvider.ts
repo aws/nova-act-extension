@@ -1,3 +1,6 @@
+/* eslint-disable import/order */
+import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -6,6 +9,7 @@ import * as vscode from 'vscode';
 
 import { getApiKey } from '../commands/setApiKeyCmd';
 import logger from '../utils/logger';
+import { VENV_DIR, showError } from '../utils/pythonUtils';
 
 interface WorkflowInfo {
   name: string;
@@ -90,8 +94,9 @@ export class NovaActCliProvider {
 
       throw new Error('Nova Act CLI not found');
     } catch (_error) {
-      logger.error('act not found in PATH or common locations, or failed validation');
-      this.novaActPath = undefined;
+      showError(
+        `Nova Act CLI not found. Please install it in ${VENV_DIR} via: pip install nova-act[cli]\n\nOr configure a custom path to the Nova Act CLI in VS Code settings: novaAct.cliPath`
+      );
     }
   }
 
@@ -211,10 +216,6 @@ export class NovaActCliProvider {
     return await this.validateCommand(`"${pathToValidate}" --version`);
   }
 
-  async validateAwsCredentials(): Promise<boolean> {
-    return await this.validateCommand('aws sts get-caller-identity');
-  }
-
   private async validateCommand(command: string): Promise<boolean> {
     return new Promise((resolve) => {
       cp.exec(command, { timeout: 10000 }, (error, _stdout, _stderr) => {
@@ -226,6 +227,12 @@ export class NovaActCliProvider {
   async executeNovaActCommand(args: string, webview?: vscode.Webview): Promise<string> {
     if (this.isDisposed) {
       throw new Error('NovaActCliProvider has been disposed');
+    }
+
+    if (!this.novaActPath) {
+      showError(
+        `Nova Act CLI not found. Please install it in ${VENV_DIR} via: pip install nova-act[cli]\n\nOr configure a custom path to the Nova Act CLI in VS Code settings: novaAct.cliPath`
+      );
     }
 
     return new Promise(async (resolve, reject) => {
@@ -346,13 +353,18 @@ export class NovaActCliProvider {
     webview: vscode.Webview,
     executionRoleArn?: string
   ): Promise<string> {
-    let command = `workflow deploy --name "${name}" --source-dir "${workflowDir}" --region "${region}"`;
+    try {
+      let command = `workflow deploy --name "${name}" --source-dir "${workflowDir}" --region "${region}"`;
 
-    if (executionRoleArn) {
-      command += ` --execution-role-arn "${executionRoleArn}"`;
+      if (executionRoleArn) {
+        command += ` --execution-role-arn "${executionRoleArn}"`;
+      }
+
+      return await this.executeNovaActCommand(command, webview);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      showError(`Failed to deploy workflow "${name}" to region ${region}: ${errorMessage}`);
     }
-
-    return await this.executeNovaActCommand(command, webview);
   }
 
   async createWorkflow(name: string, webview: vscode.Webview): Promise<void> {
@@ -360,8 +372,7 @@ export class NovaActCliProvider {
       await this.executeNovaActCommand(`workflow create --name "${name}"`, webview);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to create workflow: ${errorMessage}`);
-      throw error;
+      showError(`Failed to create workflow "${name}": ${errorMessage}`);
     }
   }
 
@@ -444,10 +455,17 @@ export class NovaActCliProvider {
       await new Promise<void>((resolve, reject) => {
         const OPERATION_TIMEOUT_MS = 86400000; // 24 hours
 
+        // Temporary fix: Set AWS max attempts to 1 to prevent retry-based duplicate workflow invocations
+        // TODO: Remove once underlying retry issue is resolved in the Nova Act CLI
+        const runEnv = {
+          ...process.env,
+          AWS_MAX_ATTEMPTS: '1',
+        };
+
         const child = cp.spawn(command, [], {
           shell: true,
           stdio: 'pipe',
-          env: process.env,
+          env: runEnv,
           cwd: workingDirectory,
         });
 
@@ -588,62 +606,21 @@ export class NovaActCliProvider {
     }
   }
 
-  async handleValidateDependencies(webview: vscode.Webview): Promise<void> {
-    try {
-      const docker = await this.validateDocker();
-      const novaActCLI = await this.validateCli(this.novaActPath);
-      const awsCredentials = await this.validateAwsCredentials();
-
-      webview.postMessage({
-        command: 'dependencyValidationResult',
-        docker,
-        novaActCLI,
-        awsCredentials,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Dependency validation error: ${errorMessage}`);
-      webview.postMessage({
-        command: 'dependencyValidationResult',
-        docker: false,
-        novaActCLI: false,
-        awsCredentials: false,
-        error: errorMessage,
-      });
-    }
-  }
-
   async handleValidateAwsCredentials(webview: vscode.Webview, isRefresh?: boolean): Promise<void> {
     try {
-      const isValid = await this.validateAwsCredentials();
+      const client = new STSClient({
+        credentials: fromNodeProviderChain({
+          ignoreCache: true,
+        }),
+      });
+      const identity = await client.send(new GetCallerIdentityCommand({}));
 
-      if (isValid) {
-        // Get identity information
-        const identityResult = await new Promise<string>((resolve, reject) => {
-          cp.exec('aws sts get-caller-identity', (error, stdout, _stderr) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(stdout);
-            }
-          });
-        });
-
-        const identity = JSON.parse(identityResult);
-        webview.postMessage({
-          type: 'awsCredentialsValidationResult',
-          success: true,
-          identity,
-          isRefresh,
-        });
-      } else {
-        webview.postMessage({
-          type: 'awsCredentialsValidationResult',
-          success: false,
-          error: 'AWS credentials validation failed',
-          isRefresh,
-        });
-      }
+      webview.postMessage({
+        type: 'awsCredentialsValidationResult',
+        success: true,
+        identity,
+        isRefresh,
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`AWS credentials validation error: ${errorMessage}`);
