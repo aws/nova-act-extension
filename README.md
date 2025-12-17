@@ -303,6 +303,63 @@ python3 --version
 
 Ensure the output shows Python 3.10 or above. If not, install or update Python before proceeding.
 
+### UV Python Installation Issues
+
+If you installed Python using `uv` (a fast Python package installer), you may encounter virtual environment creation errors during Nova Act setup.
+
+**Symptoms:**
+
+- Error message: `Command '[.../.nova-act-env/bin/python', '-m', 'ensurepip', ...]' returned non-zero exit status 1`
+- Fresh installation fails during "Creating virtual environment" step
+
+**Root Cause:**
+UV-installed Python distributions are optimized for UV's workflow and may lack the `ensurepip` module required for standard Python virtual environment creation.
+
+**Workaround:**
+
+The Nova Act extension currently requires Python installed via Homebrew, system package managers, or python.org installers. UV-installed Python is not yet supported.
+
+**Recommended Solutions:**
+
+1. **Use Homebrew Python (macOS):**
+
+   ```bash
+
+   brew install python@3.12
+   ```
+
+   Then configure VS Code to use Homebrew Python by setting `python.defaultInterpreterPath` to `/opt/homebrew/bin/python3.12`
+
+2. **Use system Python (macOS):**
+
+   ```bash
+   /usr/bin/python3 --version  # Verify version is 3.10+
+   ```
+
+   Configure VS Code to use system Python by setting `python.defaultInterpreterPath` to `/usr/bin/python3`
+
+3. **Use python.org installer:**
+   Download and install Python from [python.org](https://www.python.org/downloads/)
+
+**If you must use UV Python:**
+
+You can manually create a compatible virtual environment and install Nova Act:
+
+```bash
+# Remove any existing broken environment
+rm -rf ~/.nova-act-env
+
+# Create venv with UV using --seed flag (includes pip)
+uv venv --seed ~/.nova-act-env --python 3.13
+
+# Install Nova Act manually
+~/.nova-act-env/bin/python -m pip install "nova_act[cli]>=3.0.5.0"
+
+# Restart VS Code/Kiro to use the manually created environment
+```
+
+Note: This manual workaround may need to be repeated after extension updates.
+
 ### Authenticate
 
 **API Key Authentication**

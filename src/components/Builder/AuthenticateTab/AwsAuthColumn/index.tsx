@@ -50,9 +50,17 @@ export const AwsAuthColumn: React.FC = () => {
 
         <ol className="auth-instructions auth-description">
           <li>
-            Install AWS CLI{' '}
+            Configure AWS credentials using <code>aws configure</code>{' '}
             <a
               href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              (install CLI)
+            </a>{' '}
+            or set environment variables{' '}
+            <a
+              href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -60,7 +68,7 @@ export const AwsAuthColumn: React.FC = () => {
             </a>
           </li>
           <li>
-            Configure credentials using <code>aws configure</code> in a terminal and validate them{' '}
+            Validate credentials{' '}
             {awsCredentialStatus === 'checking' ? (
               <span className="inline-action-link disabled">
                 <span className="codicon codicon-loading codicon-modifier-spin"></span>{' '}

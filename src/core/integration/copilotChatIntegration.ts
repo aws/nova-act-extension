@@ -14,6 +14,7 @@ import { NOVA_ACT_WORKFLOW_TEMPLATE } from '../../chatTemplate/novaActV1Workflow
 import { ChatCommands, Commands } from '../../constants';
 import { TelemetryClient } from '../telemetry/client';
 import { CopilotChatCommand, FeatureName, ImportSource } from '../telemetry/events';
+import { TAB_NAMES } from '../types/sidebarMessages';
 import logger from '../utils/logger';
 import { convertErrorToString } from '../utils/utils';
 
@@ -105,7 +106,11 @@ export function copilotChatIntegration() {
           command: Commands.showBuilderMode,
           title: vscode.l10n.t('Continue in Builder Mode'),
           arguments: [
-            { initialContent: extractedCode, initialContentSource: ImportSource.COPILOT },
+            {
+              initialContent: extractedCode,
+              initialContentSource: ImportSource.COPILOT,
+              initialTab: TAB_NAMES.BUILD,
+            },
           ],
         });
       }

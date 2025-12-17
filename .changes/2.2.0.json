@@ -1,0 +1,29 @@
+{
+  "version": "2.2.0",
+  "changes": [
+    {
+      "type": "Fixed",
+      "description": "disable any retries when running workflows and increase read timeout"
+    },
+    {
+      "type": "Fixed",
+      "description": "simplify iam auth check"
+    },
+    {
+      "type": "Changed",
+      "description": "change AuthenticationValidationPage alignment from center to top-left"
+    },
+    {
+      "type": "Changed",
+      "description": "remove-dead-code"
+    },
+    {
+      "type": "Fixed",
+      "description": "set Builder Mode to open 'build' tab from Copilot Chat button"
+    },
+    {
+      "type": "Added",
+      "description": "add python compilation unit tests on templates"
+    }
+  ]
+}

@@ -2,10 +2,10 @@
 .credential-validation-notice {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: 48px 24px;
-  text-align: center;
+  text-align: left;
   height: 100%;
 }
 
