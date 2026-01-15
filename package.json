@@ -3,7 +3,7 @@
   "displayName": "Nova Act",
   "description": "AI-powered automation extension for IDE. Generate, debug, and run web automation scripts with natural language commands.",
   "publisher": "amazonwebservices",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "license": "Apache-2.0",
   "extensionKind": [
     "ui"

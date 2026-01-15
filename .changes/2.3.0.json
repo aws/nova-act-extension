@@ -1,0 +1,13 @@
+{
+  "version": "2.3.0",
+  "changes": [
+    {
+      "type": "Added",
+      "description": "Environment variable to update client source"
+    },
+    {
+      "type": "Fixed",
+      "description": "Update Generate-Script Warning"
+    }
+  ]
+}

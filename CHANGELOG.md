@@ -2,6 +2,16 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.3.0] - 2026-01-15
+
+### Added
+
+- Environment variable to update client source
+
+### Fixed
+
+- Update Generate-Script Warning
+
 ## [2.2.0] - 2025-12-17
 
 ### Added

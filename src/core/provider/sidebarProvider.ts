@@ -75,9 +75,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             try {
               if (!this.isCopilotAvailable()) {
                 vscode.window.showWarningMessage(
-                  'Please enable GitHub Copilot to use script generation'
+                  'Make sure GitHub Copilot Chat extension is enabled to use script generation: https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat'
                 );
-                return;
               }
               // Hide the sidebar to give full screen to Builder Mode
               await vscode.commands.executeCommand(VSCodeCommands.closeSidebar);
@@ -120,8 +119,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   private isCopilotAvailable(): boolean {
-    const copilotExtension = vscode.extensions.getExtension('github.copilot');
-    return copilotExtension !== undefined && copilotExtension.isActive;
+    const legacyCopilot = vscode.extensions.getExtension('github.copilot');
+    const unifiedCopilot = vscode.extensions.getExtension('github.copilot-chat');
+    return !!(legacyCopilot?.isActive || unifiedCopilot?.isActive);
   }
 
   private async sendInitMessage() {
