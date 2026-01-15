@@ -279,6 +279,17 @@ After updating the payload, click **Invoke Your Workflow** to start a remote exe
 
 ## Troubleshooting
 
+### "Please enable GitHub Copilot to use script generation" Error
+
+If you see this error when clicking "Generate Workflows", ensure you have GitHub Copilot Chat installed and active:
+
+1. **Install GitHub Copilot Chat**: Install the "GitHub Copilot Chat" extension from the VS Code marketplace
+2. **Sign in**: Make sure you're signed in to your GitHub account with Copilot access
+3. **Check Status**: Look for the Copilot icon in your VS Code status bar
+4. **Restart VS Code**: Sometimes a restart is needed after installation
+
+**Note**: The extension works with both "GitHub Copilot" and "GitHub Copilot Chat" extensions.
+
 ### Setting Python Interpreter
 
 The Nova Act extension relies on the Nova Act SDK, which requires Python 3.10 or above. The extension will try to automatically detect a suitable Python interpreter. If a valid Python interpreter cannot be found, you can set it up manually:

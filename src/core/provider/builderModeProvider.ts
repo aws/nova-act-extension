@@ -594,6 +594,7 @@ export class BuilderModeProvider {
       ...process.env,
       PYTHONUNBUFFERED: '1',
       NOVA_ACT_WEBSOCKET_PORT: wsPort.toString(),
+      NOVA_ACT_CLIENT_SOURCE: 'extension',
     } as Record<string, string>;
 
     if (apiKey) {
