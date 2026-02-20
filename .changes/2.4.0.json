@@ -1,0 +1,9 @@
+{
+  "version": "2.4.0",
+  "changes": [
+    {
+      "type": "Changed",
+      "description": "Removed year from search and extract template"
+    }
+  ]
+}

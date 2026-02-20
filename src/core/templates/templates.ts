@@ -144,7 +144,7 @@ FLIGHT_SCHEMA = {
 )
 nova.start()`,
     `# Fill search form and submit
-nova.act("Find flights from Boston to Wolf on February 21, 2026")`,
+nova.act("Find flights from Boston to Wolf on February 21")`,
     `# Extract structured data from results
 result = nova.act_get(
     "Return the flight number and price of the cheapest flight",

@@ -2,6 +2,12 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.4.0] - 2026-02-20
+
+### Changed
+
+- Removed year from search and extract template
+
 ## [2.3.0] - 2026-01-15
 
 ### Added
