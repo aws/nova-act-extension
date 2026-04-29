@@ -22,6 +22,20 @@ export interface FetchDevToolsCommand {
   url: string;
 }
 
+export interface CdpConnectCommand {
+  command: 'cdpConnect';
+  wsUrl: string;
+}
+
+export interface CdpDisconnectCommand {
+  command: 'cdpDisconnect';
+}
+
+export interface CdpSendCommand {
+  command: 'cdpSend';
+  data: string;
+}
+
 interface OpenPythonFileCommand {
   command: 'openPythonFile';
 }
@@ -88,6 +102,7 @@ export interface DeployScript {
   region: string;
   filePath: string;
   executionRoleArn?: string;
+  remoteBuild?: boolean;
 }
 
 export interface InvokeRuntime {
@@ -163,11 +178,18 @@ export interface OpenExternalUrlCommand {
   url: string;
 }
 
+export interface OpenAwsProfileSettingsCommand {
+  command: 'openAwsProfileSettings';
+}
+
 export type BuilderModeToExtensionMessage =
   | CommonToExtensionMessage
   | RunPythonCommand
   | RestartPythonProcess
   | FetchDevToolsCommand
+  | CdpConnectCommand
+  | CdpDisconnectCommand
+  | CdpSendCommand
   | FileCommand
   | ShowErrorCommand
   | ShowInfoCommand
@@ -193,7 +215,8 @@ export type BuilderModeToExtensionMessage =
   | CheckApiKeyStatusCommand
   | GetApiKeyCommand
   | ApplyConversion
-  | OpenExternalUrlCommand;
+  | OpenExternalUrlCommand
+  | OpenAwsProfileSettingsCommand;
 
 /* -------------------------------------------------------------------------- */
 /*             Messages FROM extension TO builder mode webview                */
@@ -247,6 +270,16 @@ export interface ChromeDevToolsResponseMessage {
   error?: string;
 }
 
+export interface CdpMessageFromExtension {
+  type: 'cdpMessage';
+  data: string;
+}
+
+export interface CdpStateChangeMessage {
+  type: 'cdpStateChange';
+  state: 'connected' | 'disconnected' | 'error';
+}
+
 export interface ThemeMessage {
   type: 'theme';
   theme: 'vs-dark' | 'vs-light' | 'hc-black';
@@ -285,6 +318,7 @@ export interface AwsCredentialsValidationResult {
   };
   error?: string;
   isRefresh?: boolean;
+  profile?: string;
 }
 
 export interface InvokeRuntimeResult {
@@ -370,6 +404,8 @@ export type ExtensionToBuilderModeMessage =
   | LoadFileMessage
   | FileSavedMessage
   | ChromeDevToolsResponseMessage
+  | CdpMessageFromExtension
+  | CdpStateChangeMessage
   | AgentActivity
   | ThemeMessage
   | PythonProcessReloadedMessage

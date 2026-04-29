@@ -1,0 +1,69 @@
+.cdp-browser-view {
+  --cdp-bg: var(--vscode-sideBar-background, #111);
+  --cdp-text: var(--vscode-descriptionForeground, #666);
+  --cdp-icon-opacity: 0.3;
+  --cdp-border: var(--vscode-panel-border, #333);
+  --cdp-overlay-gap: 16px;
+  --cdp-font-size: 14px;
+  --cdp-font-family: var(
+    --vscode-font-family,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif
+  );
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--cdp-bg);
+  border: 1px solid var(--cdp-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cdp-font-family);
+}
+
+.cdp-browser-view__canvas {
+  cursor: default;
+  display: none;
+}
+
+.cdp-browser-view__canvas--visible {
+  display: block;
+}
+
+.cdp-browser-view__canvas--non-interactive {
+  pointer-events: none;
+}
+
+.cdp-browser-view__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cdp-overlay-gap);
+  background: var(--cdp-bg);
+  transition: opacity 0.3s ease;
+}
+
+.cdp-browser-view__overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cdp-browser-view__overlay-icon {
+  width: 48px;
+  height: 48px;
+  opacity: var(--cdp-icon-opacity);
+  color: currentColor;
+}
+
+.cdp-browser-view__overlay-text {
+  font-size: var(--cdp-font-size);
+  color: var(--cdp-text);
+}

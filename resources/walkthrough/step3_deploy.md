@@ -1,6 +1,6 @@
 # Deploy: Move Your Workflow to AWS (Optional)
 
-Ready to run your workflow remotely? The [Deploy tab](command:nova-agent-vs-code-ext.showBuilderModeDeploy) deploys workflows to AWS AgentCore Runtime with one click.
+Ready to run your workflow remotely? The [Deploy tab](command:nova-agent-vs-code-ext.showBuilderModeDeploy) deploys workflows to Amazon Bedrock AgentCore Runtime with one click.
 
 ![Deploy Tab deployment process](step3_deploy.gif)
 

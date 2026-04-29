@@ -293,6 +293,7 @@ const actWorkflowDeploymentTemplate: Template = {
 
 import os
 
+from bedrock_agentcore.tools.browser_client import browser_session
 from nova_act import NovaAct, Workflow
 
 def main(payload):
@@ -306,17 +307,23 @@ def main(payload):
     # do any payload processing you need to from the invocation here
     # print(payload)
 
-    with Workflow(
-        workflow_definition_name="my-workflow",  # your pre-created WorkflowDefinition name
-        model_id="nova-act-latest", # which Nova Act model id you want to use
-    ) as workflow:
-        with NovaAct(
-            starting_page="https://nova.amazon.com/act/gym/next-dot/search",
-            workflow=workflow,
-            headless=True,  # remote workflows require headless mode
-            tty=False
-        ) as nova:
-            nova.act("Find flights from Boston to Wolf on Feb 22nd")
+    # Use AgentCore Browser Tool
+    with browser_session(region="us-east-1") as browser_client:
+        ws_url, headers = browser_client.generate_ws_headers()
+
+        with Workflow(
+            workflow_definition_name="my-workflow",  # your pre-created WorkflowDefinition name
+            model_id="nova-act-latest", # which Nova Act model id you want to use
+        ) as workflow:
+            with NovaAct(
+                starting_page="https://nova.amazon.com/act/gym/next-dot/search",
+                workflow=workflow,
+                headless=True,  # remote workflows require headless mode
+                tty=False,
+                cdp_endpoint_url=ws_url,
+                cdp_headers=headers,
+            ) as nova:
+                nova.act("Find flights from Boston to Wolf on Feb 22nd")
 
 # will let you run the script locally if desired
 if __name__ == "__main__":

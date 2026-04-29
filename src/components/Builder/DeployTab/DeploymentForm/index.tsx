@@ -14,6 +14,7 @@ interface DeploymentFormProps {
   agentName: string;
   region: string;
   executionRoleArn: string;
+  remoteBuild: boolean;
   validationError: string;
   executionRoleArnError: string;
   workflowNameWarning: string;
@@ -31,6 +32,7 @@ interface DeploymentFormProps {
   onRegionChange: (region: string) => void;
   onExecutionRoleArnChange: (arn: string) => void;
   onExecutionRoleArnBlur: () => void;
+  onRemoteBuildChange: (value: boolean) => void;
   onDeploy: () => void;
 
   // Form execution state
@@ -42,6 +44,7 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
   agentName,
   region,
   executionRoleArn,
+  remoteBuild,
   validationError,
   executionRoleArnError,
   workflowNameWarning,
@@ -57,6 +60,7 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
   onRegionChange,
   onExecutionRoleArnChange,
   onExecutionRoleArnBlur,
+  onRemoteBuildChange,
   onDeploy,
   isDeploying,
   deploymentStatusText,
@@ -66,7 +70,7 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
       <div className="deployment-form-container enhanced">
         <div className="form-section spacing-normal">
           <div className="form-row">
-            <div className="form-field">
+            <div className="form-field form-field-wide">
               <label className="form-label">{AGENT_NAME_FIELD.label}</label>
               <div className="form-input-wrapper">
                 <input
@@ -86,7 +90,7 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
                 <div className="help-text">{AGENT_NAME_FIELD.helpText}</div>
               )}
             </div>
-            <div className="form-field">
+            <div className="form-field form-field-narrow">
               <label className="form-label">{REGION_FIELD.label}</label>
               <select
                 className="form-control form-dropdown"
@@ -102,7 +106,9 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
               </select>
               {REGION_FIELD.helpText && <div className="help-text">{REGION_FIELD.helpText}</div>}
             </div>
-            <div className="form-field">
+          </div>
+          <div className="form-row">
+            <div className="form-field form-field-wide">
               <label className="form-label">{EXECUTION_ROLE_ARN_FIELD.label}</label>
               <div className="form-input-wrapper">
                 <input
@@ -122,6 +128,17 @@ export const DeploymentForm: React.FC<DeploymentFormProps> = ({
                   {executionRoleArnError}
                 </div>
               )}
+            </div>
+            <div className="form-field form-field-narrow">
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={remoteBuild}
+                  onChange={(e) => onRemoteBuildChange(e.target.checked)}
+                />
+                Build remotely (AWS CodeBuild)
+              </label>
+              <div className="help-text">Recommended for non-ARM64 machines</div>
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ import * as vscode from 'vscode';
 
 import { getApiKey } from '../commands/setApiKeyCmd';
 import logger from '../utils/logger';
-import { VENV_DIR, showError } from '../utils/pythonUtils';
+import { VENV_DIR } from '../utils/pythonUtils';
 
 interface WorkflowInfo {
   name: string;
@@ -94,9 +94,9 @@ export class NovaActCliProvider {
 
       throw new Error('Nova Act CLI not found');
     } catch (_error) {
-      showError(
-        `Nova Act CLI not found. Please install it in ${VENV_DIR} via: pip install nova-act[cli]\n\nOr configure a custom path to the Nova Act CLI in VS Code settings: novaAct.cliPath`
-      );
+      const msg = `Nova Act CLI not found. Please install it in ${VENV_DIR} via: pip install nova-act[cli]\n\nOr configure a custom path in VS Code settings: novaAct.cliPath`;
+      logger.log(`WARNING: ${msg}`);
+      vscode.window.showWarningMessage(msg);
     }
   }
 
@@ -104,6 +104,12 @@ export class NovaActCliProvider {
     const config = vscode.workspace.getConfiguration('novaAct');
     const cliPath = config.get<string>('cliPath');
     return cliPath && cliPath.trim() ? cliPath.trim() : undefined;
+  }
+
+  private getAwsProfile(): string | undefined {
+    const config = vscode.workspace.getConfiguration('novaAct');
+    const profile = config.get<string>('awsProfile');
+    return (profile && profile.trim()) || process.env.AWS_PROFILE || undefined;
   }
 
   private async validateCliPath(cliPath: string): Promise<boolean> {
@@ -163,6 +169,11 @@ export class NovaActCliProvider {
 
     if (apiKey) {
       enhancedEnv.NOVA_ACT_API_KEY = apiKey;
+    }
+
+    const profile = this.getAwsProfile();
+    if (profile) {
+      enhancedEnv.AWS_PROFILE = profile;
     }
 
     return enhancedEnv;
@@ -230,7 +241,7 @@ export class NovaActCliProvider {
     }
 
     if (!this.novaActPath) {
-      showError(
+      throw new Error(
         `Nova Act CLI not found. Please install it in ${VENV_DIR} via: pip install nova-act[cli]\n\nOr configure a custom path to the Nova Act CLI in VS Code settings: novaAct.cliPath`
       );
     }
@@ -351,7 +362,8 @@ export class NovaActCliProvider {
     region: string,
     workflowDir: string,
     webview: vscode.Webview,
-    executionRoleArn?: string
+    executionRoleArn?: string,
+    remoteBuild?: boolean
   ): Promise<string> {
     try {
       let command = `workflow deploy --name "${name}" --source-dir "${workflowDir}" --region "${region}"`;
@@ -360,10 +372,17 @@ export class NovaActCliProvider {
         command += ` --execution-role-arn "${executionRoleArn}"`;
       }
 
+      if (remoteBuild) {
+        command += ' --remote-build';
+      }
+
       return await this.executeNovaActCommand(command, webview);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      showError(`Failed to deploy workflow "${name}" to region ${region}: ${errorMessage}`);
+      const fullError = `Failed to deploy workflow "${name}" to region ${region}: ${errorMessage}`;
+      logger.error(fullError);
+      vscode.window.showErrorMessage('Deployment failed. See Output for details.');
+      throw new Error(fullError);
     }
   }
 
@@ -372,12 +391,21 @@ export class NovaActCliProvider {
       await this.executeNovaActCommand(`workflow create --name "${name}"`, webview);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      showError(`Failed to create workflow "${name}": ${errorMessage}`);
+      const fullError = `Failed to create workflow "${name}": ${errorMessage}`;
+      logger.error(fullError);
+      vscode.window.showErrorMessage('Failed to create workflow. See Output for details.');
+      throw new Error(fullError);
     }
   }
 
   async handleDeployScript(
-    message: { name: string; region: string; filePath: string; executionRoleArn?: string },
+    message: {
+      name: string;
+      region: string;
+      filePath: string;
+      executionRoleArn?: string;
+      remoteBuild?: boolean;
+    },
     webview: vscode.Webview,
     readFileContentFn: (filePath: string) => string,
     createWorkflowFilesFn: (name: string, content: string) => Promise<string>
@@ -401,7 +429,8 @@ export class NovaActCliProvider {
         message.region,
         workflowDir,
         webview,
-        message.executionRoleArn
+        message.executionRoleArn,
+        message.remoteBuild
       );
 
       webview.postMessage({
@@ -457,9 +486,11 @@ export class NovaActCliProvider {
 
         // Temporary fix: Set AWS max attempts to 1 to prevent retry-based duplicate workflow invocations
         // TODO: Remove once underlying retry issue is resolved in the Nova Act CLI
+        const profile = this.getAwsProfile();
         const runEnv = {
           ...process.env,
           AWS_MAX_ATTEMPTS: '1',
+          ...(profile && { AWS_PROFILE: profile }),
         };
 
         const child = cp.spawn(command, [], {
@@ -607,10 +638,12 @@ export class NovaActCliProvider {
   }
 
   async handleValidateAwsCredentials(webview: vscode.Webview, isRefresh?: boolean): Promise<void> {
+    const profile = this.getAwsProfile();
     try {
       const client = new STSClient({
         credentials: fromNodeProviderChain({
           ignoreCache: true,
+          ...(profile && { profile }),
         }),
       });
       const identity = await client.send(new GetCallerIdentityCommand({}));
@@ -620,6 +653,7 @@ export class NovaActCliProvider {
         success: true,
         identity,
         isRefresh,
+        profile: profile || 'default',
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -629,6 +663,7 @@ export class NovaActCliProvider {
         success: false,
         error: errorMessage,
         isRefresh,
+        profile: profile || 'default',
       });
     }
   }

@@ -3,12 +3,14 @@ import ctypes
 import io
 import json
 import os
+import secrets
 import sys
 import threading
 import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from enum import Enum
 from queue import Empty, Queue
+from urllib.parse import parse_qs, urlparse
 
 from websockets.sync.server import ServerConnection, serve
 
@@ -20,17 +22,20 @@ class CompletionStatus(Enum):
     FAILED = "failed"
     ABORTED = "aborted"
 
+
 class NovaActStatus(Enum):
     """NovaAct status, matching NovaActStatus in TS."""
 
     STARTED = "started"
     STOPPED = "stopped"
 
+
 worker_thread = None
 worker_queue = Queue()
 cell_id = None
 globals_dict = {}
 last_nova_act_instance = None
+
 
 def _async_raise(tid, exctype):
     """Raise an exception in a thread"""
@@ -53,7 +58,7 @@ def stop_worker():
 
 def sanitize_for_json(s: str) -> str:
     """Remove unpaired surrogates that would break UTF-8 encoding."""
-    return s.encode('utf-8', errors='replace').decode('utf-8')
+    return s.encode("utf-8", errors="replace").decode("utf-8")
 
 
 class CapturingStream(io.TextIOBase):
@@ -148,7 +153,7 @@ def worker_loop():
             ), redirect_stderr(CapturingStream(sys.__stderr__, send_json)):
                 exec(code, globals_dict)
             if var_name and var_name in globals_dict:
-              last_nova_act_instance = globals_dict[var_name]
+                last_nova_act_instance = globals_dict[var_name]
         except KeyboardInterrupt:
             success = False
             send_json(
@@ -179,7 +184,12 @@ def worker_loop():
                     "cellId": cell_id,
                     "success": success,
                     "completionStatus": completion_status.value,
-                    "novaActStatus": NovaActStatus.STARTED.value if last_nova_act_instance and getattr(last_nova_act_instance, 'started', False) else NovaActStatus.STOPPED.value
+                    "novaActStatus": (
+                        NovaActStatus.STARTED.value
+                        if last_nova_act_instance
+                        and getattr(last_nova_act_instance, "started", False)
+                        else NovaActStatus.STOPPED.value
+                    ),
                 }
             )
 
@@ -187,6 +197,27 @@ def worker_loop():
 def handler(ws: ServerConnection):
     """WebSocket handler for receiving and processing code execution requests."""
     global cell_id, worker_thread
+
+    if ws.request is None:
+        ws.close(4500, "Internal Server Error")
+        return
+
+    expected_token = os.environ.get("NOVA_ACT_WS_AUTH_TOKEN", "")
+    parsed_url = urlparse(ws.request.path)
+    query_params = parse_qs(parsed_url.query)
+    provided_token = query_params.get("token", [""])[0]
+
+    if not expected_token or not secrets.compare_digest(provided_token, expected_token):
+        ws.close(4401, "Unauthorized")
+        return
+
+    # Reject connections from browsers. Browsers always send an Origin header on
+    # WebSocket connections (this is spec-mandated and cannot be suppressed by JS),
+    # while Node.js ws does not. This blocks browser-based connections.
+    origin_header = ws.request.headers.get("Origin")
+    if origin_header is not None:
+        ws.close(4403, "Forbidden: browser connections not allowed")
+        return
 
     code_lines = []
     collecting = False
@@ -233,12 +264,12 @@ def handler(ws: ServerConnection):
             if cmd == "STOP_EXECUTION":
                 stop_worker()
                 continue
-            
+
             if cmd == "UPDATE_API_KEY":
                 # Dynamically update the environment variable
                 new_api_key = str(data.get("data", ""))
                 os.environ["NOVA_ACT_API_KEY"] = new_api_key
-                continue                
+                continue
 
         except Exception as e:
             send_json(
@@ -259,20 +290,29 @@ def find_last_novaact_var(code: str):
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
-            if isinstance(node.value, ast.Call) and getattr(node.value.func, "id", None) == "NovaAct":
+            if (
+                isinstance(node.value, ast.Call)
+                and getattr(node.value.func, "id", None) == "NovaAct"
+            ):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
                         last_var = target.id
         elif isinstance(node, ast.AnnAssign):
-            if isinstance(node.value, ast.Call) and getattr(node.value.func, "id", None) == "NovaAct":
+            if (
+                isinstance(node.value, ast.Call)
+                and getattr(node.value.func, "id", None) == "NovaAct"
+            ):
                 if isinstance(node.target, ast.Name):
                     last_var = node.target.id
     return last_var
 
-if __name__ == "__main__":    
+
+if __name__ == "__main__":
     # Get port from environment variable, default to 8765
-    port = int(os.environ.get('NOVA_ACT_WEBSOCKET_PORT', '8765'))
-    
+    port = int(os.environ.get("NOVA_ACT_WEBSOCKET_PORT", "8765"))
+
     print(f"Starting Nova Act WebSocket server on port {port}")
-    with serve(handler, "", port) as server:
+    # Bind to 127.0.0.1 (loopback only) so only local processes can connect.
+    # The only client is the VS Code extension running on the same machine.
+    with serve(handler, "127.0.0.1", port) as server:
         server.serve_forever()
