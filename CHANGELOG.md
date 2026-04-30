@@ -2,6 +2,16 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.5.0] - 2026-04-29
+
+### Fixed
+
+- Fixed live view not rendering browser in Builder Mode
+
+### Security
+
+- Added authentication to local WebSocket server
+
 ## [2.4.0] - 2026-02-20
 
 ### Changed
@@ -108,3 +118,4 @@ All notable changes to the Nova Act extension will be documented in this file.
 ### Added
 
 - Initial Release of Nova Act Extension
+

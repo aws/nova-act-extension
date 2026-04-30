@@ -72,6 +72,11 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
         await execAsync(`"${venvPythonPath}" -m pip install websockets --upgrade`);
         progress.report({ increment: 5, message: '🔌 Websockets installed' });
 
+        // Step 5.5: Install botocore[crt] for AWS login support
+        progress.report({ message: '🔐 Installing AWS CRT for login support...' });
+        await execAsync(`"${venvPythonPath}" -m pip install "botocore[crt]" --upgrade`);
+        progress.report({ increment: 5, message: '🔐 AWS CRT installed' });
+
         // Step 6: Install Playwright
         progress.report({ message: '🌐 Installing Playwright...' });
         let installCmd = `"${venvPythonPath}" -m playwright install chromium`;

@@ -201,6 +201,8 @@ export const NotebookCell: React.FC<NotebookCellProps> = ({
         case 'apiKeyStatusResult':
         case 'apiKeyResult':
         case 'conversionApplied':
+        case 'cdpMessage':
+        case 'cdpStateChange':
           // These messages are handled by NotebookPanel/DeployTab/AuthenticationContext, not individual cells
           break;
 

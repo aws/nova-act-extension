@@ -50,7 +50,7 @@ export type RunAllState = {
 };
 
 interface NotebookProps {
-  setDevToolsUrl: (url: string) => void;
+  setWsUrl: (url: string) => void;
   collapseView: (collapse: boolean) => void;
 }
 
@@ -70,7 +70,7 @@ interface BatchRunContext {
   aborted: number;
 }
 
-export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) => {
+export const NotebookPanel = ({ setWsUrl, collapseView }: NotebookProps) => {
   const {
     cells,
     moveCell,
@@ -301,7 +301,7 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     }
 
     if (success && novaActStatus === 'stopped') {
-      setDevToolsUrl('');
+      setWsUrl('');
       browserAlreadyStarted.current = false;
     }
 
@@ -341,7 +341,7 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     }
 
     // Reset dev tools
-    setDevToolsUrl('');
+    setWsUrl('');
     browserAlreadyStarted.current = false;
 
     builderModeVscodeApi.postMessage({
@@ -377,9 +377,9 @@ export const NotebookPanel = ({ setDevToolsUrl, collapseView }: NotebookProps) =
     if (success && !!data) {
       try {
         const pageTab = data.find((tab) => tab.type === 'page');
-        if (pageTab?.devtoolsFrontendUrl) {
-          logger.debug(`Setting DevTools URL: ${pageTab.devtoolsFrontendUrl}`);
-          setDevToolsUrl(pageTab.devtoolsFrontendUrl);
+        if (pageTab?.webSocketDebuggerUrl) {
+          logger.debug(`Setting WebSocket URL: ${pageTab.webSocketDebuggerUrl}`);
+          setWsUrl(pageTab.webSocketDebuggerUrl);
         } else {
           logger.debug('No page tab found in DevTools response');
         }

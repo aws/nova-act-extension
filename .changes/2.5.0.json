@@ -1,0 +1,14 @@
+{
+  "version": "2.5.0",
+  "date": "2026-04-29",
+  "changes": [
+    {
+      "type": "Fixed",
+      "description": "Fixed live view not rendering browser in Builder Mode"
+    },
+    {
+      "type": "Security",
+      "description": "Added authentication to local WebSocket server"
+    }
+  ]
+}

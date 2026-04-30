@@ -10,7 +10,8 @@ import { AuthActionSection } from '../AuthActionSection';
 import './index.css';
 
 export const AwsAuthColumn: React.FC = () => {
-  const { awsCredentialStatus, setAuthMethod, validateAwsCredentials } = useAuthentication();
+  const { awsCredentialStatus, awsProfile, setAuthMethod, validateAwsCredentials } =
+    useAuthentication();
   const { navigateToTab } = useInitialTab();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [dontRemind, setDontRemind] = useState(false);
@@ -40,10 +41,22 @@ export const AwsAuthColumn: React.FC = () => {
     validateAwsCredentials();
   };
 
+  const handleConfigureProfile = () => {
+    builderModeVscodeApi.postMessage({ command: 'openAwsProfileSettings' });
+  };
+
   return (
     <>
       <div className="auth-column aws-column">
         <h2>IAM Authentication</h2>
+        <div className="aws-column-profile-info">
+          <span>
+            Profile: <strong>{awsProfile}</strong>
+          </span>
+          <span className="inline-action-link" onClick={handleConfigureProfile}>
+            Configure
+          </span>
+        </div>
         <p className="auth-description">
           For production development with built-in AWS Console observability
         </p>

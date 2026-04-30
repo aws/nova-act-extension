@@ -14,7 +14,7 @@ const RESIZE_HANDLE_WIDTH = 12;
 
 export const NavigationTabs = () => {
   const { activeTab, navigateToTab } = useInitialTab();
-  const [devToolsUrl, setDevToolsUrl] = useState('');
+  const [wsUrl, setWsUrl] = useState('');
   const [browserIsExpanded, setBrowserIsExpanded] = useState(true);
   const [isOverlayVisible, setOverlayVisible] = useState(true);
 
@@ -154,7 +154,7 @@ export const NavigationTabs = () => {
           <main ref={containerRef} className="two-column-layout">
             <div ref={leftColumnRef} className="left-column">
               <NotebookPanel
-                setDevToolsUrl={setDevToolsUrl}
+                setWsUrl={setWsUrl}
                 collapseView={(collapse: boolean) => {
                   setBrowserIsExpanded(collapse);
                   setOverlayVisible(collapse);
@@ -168,7 +168,7 @@ export const NavigationTabs = () => {
                   <BrowserViewPanel
                     isExpanded={browserIsExpanded}
                     toggleExpand={() => setBrowserIsExpanded(!browserIsExpanded)}
-                    devToolsUrl={devToolsUrl}
+                    wsUrl={wsUrl}
                     isOverlayVisible={isOverlayVisible}
                     toggleOverlay={() => setOverlayVisible(!isOverlayVisible)}
                   />

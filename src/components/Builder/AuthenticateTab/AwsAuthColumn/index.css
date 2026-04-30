@@ -2,6 +2,18 @@
   /* Inherits all styles from .auth-column */
 }
 
+.aws-column .aws-column-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  background: var(--vscode-textBlockQuote-background);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--vscode-foreground);
+}
+
 .auth-status.checking {
   background: var(--vscode-inputValidation-infoBackground);
   border: 1px solid var(--vscode-inputValidation-infoBorder);

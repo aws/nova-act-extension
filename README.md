@@ -526,7 +526,7 @@ Nova Act provides several commands accessible through the VS Code Command Palett
 | **Nova Act: Set API Key**                      | Prompts you to enter or update your Nova Act API key for authentication (required for local development)       |
 | **Nova Act: Builder Mode**                     | Opens the main Builder Mode interface for developing and testing workflows locally with live browser debugging |
 | **Nova Act: Authenticate**                     | Opens the Authenticate tab to configure your API key and AWS credentials                                       |
-| **Nova Act: Deploy Workflow**                  | Opens the Deploy tab to containerize and deploy your workflow to AWS AgentCore Runtime                         |
+| **Nova Act: Deploy Workflow**                  | Opens the Deploy tab to containerize and deploy your workflow to Amazon Bedrock AgentCore Runtime              |
 | **Nova Act: Run Workflows**                    | Opens the Run tab to execute deployed workflows and monitor their execution in real-time                       |
 | **Nova Act: View Step Details**                | Displays detailed information about a specific workflow step, including parameters and execution context       |
 | **Nova Act: View Workflow Documentation**      | Opens the documentation for the currently active workflow, including usage examples and API reference          |

@@ -1,4 +1,5 @@
 import * as cp from 'child_process';
+import crypto from 'crypto';
 import * as fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -45,12 +46,14 @@ export class BuilderModeProvider {
   private pythonProcess: cp.ChildProcess | undefined;
   private pythonWs: InstanceType<typeof WS> | undefined;
   private cdtWs: InstanceType<typeof WS> | undefined;
+  private cdpPageWs: InstanceType<typeof WS> | undefined;
   private novaActPath: string | undefined;
   private initialTab?: string;
   private novaActCliProvider: NovaActCliProvider;
 
   private telemetryClient: TelemetryClient;
   private themeChangeDisposable: vscode.Disposable | undefined;
+  private profileChangeDisposable: vscode.Disposable | undefined;
 
   private constructor(
     panel: vscode.WebviewPanel,
@@ -91,6 +94,12 @@ export class BuilderModeProvider {
       this.sendThemeToWebview()
     );
 
+    this.profileChangeDisposable = vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('novaAct.awsProfile')) {
+        this.handleValidateAwsCredentials(this.panel.webview);
+      }
+    });
+
     this.panel.webview.onDidReceiveMessage(async (message: BuilderModeToExtensionMessage) => {
       switch (message.command) {
         case 'ready':
@@ -106,6 +115,15 @@ export class BuilderModeProvider {
           break;
         case 'fetchChromeDevToolsUrl':
           await this.handleFetchChromeDevToolsUrl(message);
+          break;
+        case 'cdpConnect':
+          this.handleCdpConnect(message.wsUrl);
+          break;
+        case 'cdpDisconnect':
+          this.handleCdpDisconnect();
+          break;
+        case 'cdpSend':
+          this.handleCdpSend(message.data);
           break;
         case 'openPythonFile':
           await this.openPythonFileDialog();
@@ -315,6 +333,10 @@ export class BuilderModeProvider {
           }
           break;
 
+        case 'openAwsProfileSettings':
+          vscode.commands.executeCommand('workbench.action.openSettings', 'novaAct.awsProfile');
+          break;
+
         default:
           // Exhaustiveness check - If you see a TypeScript error here,
           // it means we are missing a case handler for a command type
@@ -443,6 +465,7 @@ export class BuilderModeProvider {
 
   public async cleanup() {
     this.themeChangeDisposable?.dispose();
+    this.profileChangeDisposable?.dispose();
     this.cleanPythonProcess();
     this.novaActCliProvider.dispose();
     if (
@@ -451,6 +474,7 @@ export class BuilderModeProvider {
     )
       this.cdtWs.close();
     this.cdtWs = undefined;
+    this.handleCdpDisconnect();
   }
 
   private sendPythonCode(
@@ -587,13 +611,87 @@ export class BuilderModeProvider {
     }
   }
 
-  async setupNovaActEnvironment(wsPort: number): Promise<Record<string, string>> {
+  private handleCdpConnect(wsUrl: string): void {
+    this.handleCdpDisconnect();
+
+    try {
+      const parsed = new URL(wsUrl);
+      if (parsed.protocol !== 'ws:' && parsed.protocol !== 'wss:') {
+        logger.log('[CDP-Proxy] rejected: invalid protocol ' + parsed.protocol);
+        this.postMessageToWebview({ type: 'cdpStateChange', state: 'error' });
+        return;
+      }
+      if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+        logger.log('[CDP-Proxy] rejected: non-local host ' + parsed.hostname);
+        this.postMessageToWebview({ type: 'cdpStateChange', state: 'error' });
+        return;
+      }
+    } catch {
+      logger.log('[CDP-Proxy] rejected: malformed URL');
+      this.postMessageToWebview({ type: 'cdpStateChange', state: 'error' });
+      return;
+    }
+
+    const ws = new WS(wsUrl);
+
+    ws.onopen = () => {
+      if (this.cdpPageWs !== ws) return;
+      logger.debug('[CDP-Proxy] connected');
+      this.postMessageToWebview({ type: 'cdpStateChange', state: 'connected' });
+    };
+
+    ws.onmessage = (rawData) => {
+      if (this.cdpPageWs !== ws) return;
+      this.postMessageToWebview({ type: 'cdpMessage', data: String(rawData.data) });
+    };
+
+    ws.onerror = () => {
+      if (this.cdpPageWs !== ws) return;
+      this.postMessageToWebview({ type: 'cdpStateChange', state: 'error' });
+    };
+
+    ws.onclose = () => {
+      if (this.cdpPageWs !== ws) return;
+      logger.debug('[CDP-Proxy] closed');
+      this.cdpPageWs = undefined;
+      this.postMessageToWebview({ type: 'cdpStateChange', state: 'disconnected' });
+    };
+
+    this.cdpPageWs = ws;
+  }
+
+  private handleCdpDisconnect(): void {
+    if (this.cdpPageWs) {
+      this.cdpPageWs.onopen = null;
+      this.cdpPageWs.onclose = null;
+      this.cdpPageWs.onmessage = null;
+      this.cdpPageWs.onerror = null;
+      try {
+        this.cdpPageWs.close();
+      } catch (err) {
+        logger.error('[CDP-Proxy] error closing WebSocket: ' + err);
+      }
+      this.cdpPageWs = undefined;
+    }
+  }
+
+  private handleCdpSend(data: string): void {
+    if (this.cdpPageWs && this.cdpPageWs.readyState === WS.OPEN) {
+      this.cdpPageWs.send(data);
+    }
+  }
+
+  async setupNovaActEnvironment(
+    wsPort: number,
+    authToken: string
+  ): Promise<Record<string, string>> {
     const apiKey = await getApiKey(this.extensionContext);
 
     const envVars = {
       ...process.env,
       PYTHONUNBUFFERED: '1',
       NOVA_ACT_WEBSOCKET_PORT: wsPort.toString(),
+      NOVA_ACT_WS_AUTH_TOKEN: authToken,
       NOVA_ACT_CLIENT_SOURCE: 'extension',
     } as Record<string, string>;
 
@@ -632,7 +730,8 @@ export class BuilderModeProvider {
     );
 
     const wsPort = this.getWebSocketPort();
-    const envVars = await this.setupNovaActEnvironment(wsPort);
+    const authToken = crypto.randomBytes(32).toString('hex');
+    const envVars = await this.setupNovaActEnvironment(wsPort, authToken);
 
     logger.log(`Starting Python WebSocket server on port ${wsPort}`);
 
@@ -644,7 +743,7 @@ export class BuilderModeProvider {
     this.pythonProcess = py;
     this.waitForPortReady({ port: wsPort })
       .then(() => {
-        const ws = new WS(`ws://localhost:${wsPort}`);
+        const ws = new WS(`ws://localhost:${wsPort}?token=${authToken}`);
         ws.onopen = () => {
           this.pythonWs = ws;
           if (restart) {
@@ -772,6 +871,14 @@ export class BuilderModeProvider {
           testWs.onopen = () => {
             testWs.close();
             resolve();
+          };
+          testWs.onclose = (event: { code?: number }) => {
+            // 4401 (Unauthorized) and 4403 (Forbidden) are custom close codes
+            // from our WebSocket backend — receiving them means the server is up
+            // and enforcing auth, so the port is ready.
+            if (event.code === 4401 || event.code === 4403) {
+              resolve();
+            }
           };
           testWs.onerror = reject;
         });

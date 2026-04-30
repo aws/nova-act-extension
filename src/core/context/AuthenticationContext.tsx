@@ -20,6 +20,7 @@ interface CredentialValidationMessage {
   identity?: {
     Arn: string;
   };
+  profile?: string;
 }
 
 interface AuthenticationState {
@@ -28,6 +29,7 @@ interface AuthenticationState {
   awsCredentialStatus: 'valid' | 'invalid' | 'checking';
   iamIdentity: string;
   apiKey: string;
+  awsProfile: string;
 }
 
 interface AuthenticationActions {
@@ -56,6 +58,7 @@ export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({ 
   );
   const [iamIdentity, setIamIdentity] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
+  const [awsProfile, setAwsProfile] = useState<string>('default');
 
   useEffect(() => {
     checkApiKeyStatus();
@@ -84,6 +87,9 @@ export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({ 
   }, []);
 
   const handleCredentialValidation = useCallback((message: CredentialValidationMessage) => {
+    if (message.profile) {
+      setAwsProfile(message.profile);
+    }
     if (message.success && message.identity?.Arn) {
       setIamIdentity(message.identity.Arn);
       setAwsCredentialStatus('valid');
@@ -119,6 +125,7 @@ export const AuthenticationProvider: React.FC<AuthenticationProviderProps> = ({ 
     awsCredentialStatus,
     iamIdentity,
     apiKey,
+    awsProfile,
     setAuthMethod,
     validateAwsCredentials,
     checkApiKeyStatus,

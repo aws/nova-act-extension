@@ -440,7 +440,7 @@ multi_threaded_workflow()</code></pre>
 
         <div class="section">
             <div class="section-title">Nova Act CLI</div>
-            <p>The Nova Act CLI provides a streamlined command-line interface for deploying Python workflows to AWS AgentCore Runtime, handling containerization, ECR management, IAM roles, and multi-region deployments automatically.</p>
+            <p>The Nova Act CLI provides a streamlined command-line interface for deploying Python workflows to Amazon Bedrock AgentCore Runtime, handling containerization, ECR management, IAM roles, and multi-region deployments automatically.</p>
             
             <p><strong>How the Extension Uses the CLI:</strong></p>
             <ul>

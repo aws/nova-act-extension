@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import {
   CaptionsIcon,
@@ -7,13 +7,12 @@ import {
   PanelTopOpenIcon,
 } from '../../../core/utils/svg';
 import { AgentOverlay } from '../AgentOverlay';
-import { Loader } from '../Loader';
 import { Tooltip } from '../Tooltip';
-import { WidthCalcFrame } from './WidthCalcFrame';
+import { CDPBrowserView } from './CDPBrowserView';
 import './index.css';
 
 interface BrowserViewPanelProps {
-  readonly devToolsUrl: string;
+  readonly wsUrl: string;
   readonly isExpanded: boolean;
   readonly toggleExpand: () => void;
   readonly toggleOverlay: () => void;
@@ -23,25 +22,15 @@ interface BrowserViewPanelProps {
 export const BrowserViewPanel = ({
   isExpanded,
   toggleExpand,
-  devToolsUrl,
+  wsUrl,
   isOverlayVisible,
   toggleOverlay,
 }: BrowserViewPanelProps) => {
-  const [receivedWidth, setReceivedWidth] = useState();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const onFullscreenToggle = () => {
     setIsFullscreen(!isFullscreen);
   };
-
-  // Event listener for event dispatched by <WidthCalcFrame />
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function handleEvent(e: any) {
-      setReceivedWidth(e.detail.width + 6);
-    }
-    window.document.addEventListener('myWidthUpdate', handleEvent, false);
-  }, []);
 
   return (
     <>
@@ -90,20 +79,8 @@ export const BrowserViewPanel = ({
           border: isExpanded ? 'revert-layer' : 'none',
         }}
       >
-        {devToolsUrl ? (
-          receivedWidth ? (
-            <iframe
-              className="devtools-iframe"
-              src={devToolsUrl}
-              allow="clipboard-read; clipboard-write"
-              style={{ width: `calc( 100% + ${receivedWidth}px )`, height: '100%' }}
-            />
-          ) : (
-            <>
-              <Loader />
-              <WidthCalcFrame devToolsUrl={devToolsUrl} />
-            </>
-          )
+        {wsUrl ? (
+          <CDPBrowserView wsUrl={wsUrl} />
         ) : (
           <div className="placeholder-content">
             <span>
@@ -131,17 +108,8 @@ export const BrowserViewPanel = ({
               <button onClick={onFullscreenToggle}>Exit fullscreen</button>
             </div>
           </div>
-          {devToolsUrl ? (
-            receivedWidth ? (
-              <iframe
-                className="fullscreen-iframe"
-                src={devToolsUrl}
-                allow="clipboard-read; clipboard-write"
-                style={{ width: `calc( 100% + ${receivedWidth ?? '250'}px )`, height: '100%' }}
-              />
-            ) : (
-              <Loader />
-            )
+          {wsUrl ? (
+            <CDPBrowserView wsUrl={wsUrl} className="fullscreen-browser-view" />
           ) : (
             <div className="placeholder-content">
               <span>

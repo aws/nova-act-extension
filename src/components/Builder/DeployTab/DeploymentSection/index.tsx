@@ -12,6 +12,7 @@ interface DeploymentSectionProps {
   agentName: string;
   region: string;
   executionRoleArn: string;
+  remoteBuild: boolean;
   validationError: string;
   executionRoleArnError: string;
   workflowNameWarning: string;
@@ -27,6 +28,7 @@ interface DeploymentSectionProps {
   onRegionChange: (region: string) => void;
   onExecutionRoleArnChange: (arn: string) => void;
   onExecutionRoleArnBlur: () => void;
+  onRemoteBuildChange: (value: boolean) => void;
   onDeploy: () => void;
   isDeploying: boolean;
   deploymentStatusText: string;
@@ -40,6 +42,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({
   agentName,
   region,
   executionRoleArn,
+  remoteBuild,
   validationError,
   executionRoleArnError,
   workflowNameWarning,
@@ -55,6 +58,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({
   onRegionChange,
   onExecutionRoleArnChange,
   onExecutionRoleArnBlur,
+  onRemoteBuildChange,
   onDeploy,
   isDeploying,
   deploymentStatusText,
@@ -111,6 +115,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({
           agentName={agentName}
           region={region}
           executionRoleArn={executionRoleArn}
+          remoteBuild={remoteBuild}
           validationError={validationError}
           executionRoleArnError={executionRoleArnError}
           workflowNameWarning={workflowNameWarning}
@@ -126,6 +131,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({
           onRegionChange={onRegionChange}
           onExecutionRoleArnChange={onExecutionRoleArnChange}
           onExecutionRoleArnBlur={onExecutionRoleArnBlur}
+          onRemoteBuildChange={onRemoteBuildChange}
           onDeploy={onDeploy}
           isDeploying={isDeploying}
           deploymentStatusText={deploymentStatusText}

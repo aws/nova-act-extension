@@ -94,6 +94,15 @@
   gap: 4px;
 }
 
+/* Two-row layout: wide fields ~65%, narrow fields ~35% */
+.deployment-form-container.enhanced .form-field-wide {
+  flex: 2;
+}
+
+.deployment-form-container.enhanced .form-field-narrow {
+  flex: 1;
+}
+
 /* Execution Role ARN field styles */
 .help-text {
   margin-top: 4px;
@@ -122,6 +131,19 @@
 .form-input.error {
   border-color: var(--vscode-inputValidation-errorBorder);
   background-color: var(--vscode-inputValidation-errorBackground);
+}
+
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--deploy-text-sm);
+  color: var(--vscode-foreground);
+  cursor: pointer;
+}
+
+.form-checkbox-label input[type='checkbox'] {
+  cursor: pointer;
 }
 
 /* Responsive adjustments for enhanced form */

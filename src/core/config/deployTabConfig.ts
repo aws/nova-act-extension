@@ -98,7 +98,7 @@ export const DEPLOY_TAB_CONFIG = {
       deploymentSuccessful: 'Deployment Successful!',
       runtimeInvocation: 'Runtime Invocation',
       invocationResponse: 'Invocation Response:',
-      deployHeading: 'Deploy your workflow to AWS AgentCore Runtime',
+      deployHeading: 'Deploy your workflow to Amazon Bedrock AgentCore Runtime',
       prerequisites: 'Prerequisites',
       packageSection: 'Package Agent Image',
       finalSection: 'Deploy Workflow To AWS',
@@ -133,7 +133,7 @@ export const DEPLOY_TAB_CONFIG = {
       initial:
         'To Deploy your Nova Act Agent you will need to configure your credentials for the AWS Command Line Interface. To do this follow the steps below.',
       introText:
-        'The Deploy tab allows you to package your workflow script and deploy it to AWS AgentCore Runtime. Follow the prerequisites and steps below to prepare and deploy your workflow. Deployment on AWS is subject to your AWS customer terms.',
+        'The Deploy tab allows you to package your workflow script and deploy it to Amazon Bedrock AgentCore Runtime. Follow the prerequisites and steps below to prepare and deploy your workflow. Deployment on AWS is subject to your AWS customer terms.',
       prerequisites:
         'The only prerequisite is having valid and working AWS credentials configured, wether they are permanent access keys for an IAM user or a temporary assumed role. To begin you will need to install the AWS CLI by following the AWS installer getting started guide.',
       prerequisitesUpdated:

@@ -19,7 +19,8 @@ const sendDeployCommand = (
   name: string,
   region: string,
   filePath: string,
-  executionRoleArn?: string
+  executionRoleArn?: string,
+  remoteBuild?: boolean
 ): void => {
   builderModeVscodeApi?.postMessage({
     command: 'deployScript',
@@ -27,6 +28,7 @@ const sendDeployCommand = (
     region,
     filePath,
     ...(executionRoleArn && { executionRoleArn }),
+    ...(remoteBuild && { remoteBuild }),
   });
 };
 
@@ -41,6 +43,7 @@ export const DeploymentPage = () => {
   const [agentName, setAgentName] = useState('');
   const [region, setRegion] = useState(DEPLOY_TAB_CONFIG.defaultRegion);
   const [executionRoleArn, setExecutionRoleArn] = useState('');
+  const [remoteBuild, setRemoteBuild] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [executionRoleArnError, setExecutionRoleArnError] = useState('');
   const [workflowNameWarning, setWorkflowNameWarning] = useState('');
@@ -237,7 +240,13 @@ export const DeploymentPage = () => {
     }
 
     initializeDeploymentState();
-    sendDeployCommand(agentName, region, fileLocation, executionRoleArn || undefined);
+    sendDeployCommand(
+      agentName,
+      region,
+      fileLocation,
+      executionRoleArn || undefined,
+      remoteBuild || undefined
+    );
   };
 
   const handleShowConversionModal = () => {
@@ -287,6 +296,7 @@ export const DeploymentPage = () => {
     agentName,
     region,
     executionRoleArn,
+    remoteBuild,
     validationError,
     executionRoleArnError,
     workflowNameWarning: workflowNameWarning || headlessWarning || deploymentWarningMessage,
@@ -302,6 +312,7 @@ export const DeploymentPage = () => {
     onRegionChange: setRegion,
     onExecutionRoleArnChange: handleExecutionRoleArnChange,
     onExecutionRoleArnBlur: handleExecutionRoleArnBlur,
+    onRemoteBuildChange: setRemoteBuild,
     onDeploy: executeDeployment,
     isDeploying,
     deployOutput,
