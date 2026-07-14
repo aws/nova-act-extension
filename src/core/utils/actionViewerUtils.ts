@@ -7,11 +7,32 @@ interface NewFormatMetadata {
   session_id?: string;
   act_id?: string;
   prompt?: string;
+  start_time?: number;
+  num_steps_executed?: number;
+  step_server_times_s?: number[];
 }
 
 interface NewFormatRoot {
   steps: unknown[];
   metadata: NewFormatMetadata;
+}
+
+/**
+ * Represents a single step in the trajectory format (Nova Act SDK >= 3.3.35).
+ * Note: simplified_dom is present in the file but intentionally not rendered
+ * in the Action Viewer UI since it's a raw accessibility tree snapshot used
+ * by the model, not useful for human debugging.
+ */
+interface TrajectoryStep {
+  active_url?: string;
+  image?: string;
+  simplified_dom?: string;
+  program?: {
+    calls?: Array<{
+      name?: string;
+      kwargs?: Record<string, unknown>;
+    }>;
+  };
 }
 
 /**
@@ -186,6 +207,115 @@ function parseOldFormat(
 }
 
 /**
+ * Helper function to detect if the new format data is specifically a trajectory file
+ * (has steps with active_url/image/program structure rather than request/response).
+ * Note: This checks the first step only. If the first step is malformed but subsequent
+ * steps are valid trajectory steps, detection will fail and the old parser will be used.
+ * In practice, trajectory files always have consistent step structure.
+ */
+function isTrajectoryFormat(jsonData: NewFormatRoot): boolean {
+  if (jsonData.steps.length === 0) return false;
+  const firstStep = jsonData.steps[0] as Record<string, unknown>;
+  return 'active_url' in firstStep || 'program' in firstStep;
+}
+
+/**
+ * Helper function to create an ActionStep from a trajectory step object
+ */
+function createTrajectoryActionStep(
+  step: TrajectoryStep,
+  index: number,
+  timestamp: string,
+  actId: string,
+  fileName: string,
+  includeFileInfo: boolean
+): ActionStep {
+  // Build action data from program calls
+  let actionData: string | undefined;
+  if (step.program?.calls && step.program.calls.length > 0) {
+    const actionParts = step.program.calls
+      .map((call) => {
+        if (call.name === 'think') {
+          return `think(${JSON.stringify((call.kwargs?.value as string) || '')})`;
+        }
+        const args = call.kwargs
+          ? Object.entries(call.kwargs)
+              .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+              .join(', ')
+          : '';
+        return `${call.name || 'unknown'}(${args})`;
+      })
+      .join('\n');
+    actionData = actionParts;
+  }
+
+  // Handle image data - add data URI prefix if it's raw base64
+  let imageData: string | undefined;
+  if (step.image) {
+    imageData = step.image.startsWith('data:')
+      ? step.image
+      : `data:image/jpeg;base64,${step.image}`;
+  }
+
+  const result: ActionStep = {
+    stepNumber: index + 1,
+    currentUrl: step.active_url || 'No URL available',
+    timestamp,
+    imageData,
+    actionData,
+  };
+
+  if (includeFileInfo) {
+    result.actId = actId;
+    result.fileName = fileName;
+  }
+
+  return result;
+}
+
+/**
+ * Helper function to parse trajectory format JSON (Nova Act SDK >= 3.x)
+ */
+function parseTrajectoryFormat(
+  jsonData: NewFormatRoot,
+  filePath: string,
+  includeFileInfo: boolean
+): ActionData | null {
+  const { metadata, steps: stepsArray } = jsonData;
+
+  const sessionId: string = metadata.session_id || '';
+  const actId: string = metadata.act_id || path.basename(filePath, '_trajectory.json');
+  const prompt: string = metadata.prompt || 'No prompt available';
+  const fileName: string = path.basename(filePath);
+  const startTime: number = metadata.start_time || 0;
+  const stepTimes: number[] = metadata.step_server_times_s || [];
+
+  const steps: ActionStep[] = stepsArray.map((step, index) => {
+    // Compute cumulative offset from step_server_times_s for accurate per-step timestamps.
+    // If stepTimes is shorter than the steps array (e.g., interrupted session),
+    // steps beyond the array get 'N/A' rather than a misleading duplicate timestamp.
+    let stepTimestamp: string;
+    if (startTime && stepTimes.length > index) {
+      const cumulativeOffset = stepTimes.slice(0, index).reduce((sum, t) => sum + t, 0);
+      stepTimestamp = new Date((startTime + cumulativeOffset) * 1000).toISOString();
+    } else {
+      stepTimestamp = 'N/A';
+    }
+
+    return createTrajectoryActionStep(
+      step as TrajectoryStep,
+      index,
+      stepTimestamp,
+      actId,
+      fileName,
+      includeFileInfo
+    );
+  });
+
+  return { actId, prompt, steps, isFolder: false, fileCount: 1, sessionId };
+}
+
+/**
  * Helper function to parse new format calls JSON
  */
 function parseNewFormat(
@@ -217,6 +347,9 @@ export function parseCallsJsonData(
 ): ActionData | null {
   try {
     if (isNewFormat(jsonData)) {
+      if (isTrajectoryFormat(jsonData)) {
+        return parseTrajectoryFormat(jsonData, filePath, includeFileInfo);
+      }
       return parseNewFormat(jsonData, filePath, includeFileInfo);
     }
 
@@ -239,11 +372,19 @@ export function findCorrespondingJsonFile(htmlFilePath: string): string | null {
     const baseName: string = path.basename(htmlFilePath, path.extname(htmlFilePath));
 
     // Try to find corresponding JSON file with pattern: <basename>_calls.json
-    const jsonFileName: string = `${baseName}_calls.json`;
-    const jsonFilePath: string = path.join(dir, jsonFileName);
+    const callsJsonFileName: string = `${baseName}_calls.json`;
+    const callsJsonFilePath: string = path.join(dir, callsJsonFileName);
 
-    if (fs.existsSync(jsonFilePath)) {
-      return jsonFilePath;
+    if (fs.existsSync(callsJsonFilePath)) {
+      return callsJsonFilePath;
+    }
+
+    // Fallback: try _trajectory.json pattern
+    const trajectoryJsonFileName: string = `${baseName}_trajectory.json`;
+    const trajectoryJsonFilePath: string = path.join(dir, trajectoryJsonFileName);
+
+    if (fs.existsSync(trajectoryJsonFilePath)) {
+      return trajectoryJsonFilePath;
     }
 
     return null;

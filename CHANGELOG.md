@@ -2,6 +2,12 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.6.0] - 2026-07-14
+
+### Fixed
+
+- Added support for new session log formats for Nova Act SDK >=3.3.35 in the Action Viewer
+
 ## [2.5.0] - 2026-04-29
 
 ### Fixed

@@ -120,11 +120,11 @@ export class ActionViewerProvider {
       }
 
       const files: string[] = fs.readdirSync(folderPath);
-      const callsJsonFiles: string[] = files
-        .filter((file: string) => file.endsWith('_calls.json'))
+      const sessionLogFiles: string[] = files
+        .filter((file: string) => file.endsWith('_calls.json') || file.endsWith('_trajectory.json'))
         .map((file: string) => path.join(folderPath, file));
 
-      if (callsJsonFiles.length === 0) {
+      if (sessionLogFiles.length === 0) {
         const errorMsg = `No valid Act Html/Json files found in folder: ${folderPath}`;
         this.postMessageToWebview({
           type: 'actionData',
@@ -135,7 +135,7 @@ export class ActionViewerProvider {
         return;
       }
 
-      const sortedFiles: string[] = sortFilesByTimestamp(callsJsonFiles);
+      const sortedFiles: string[] = sortFilesByTimestamp(sessionLogFiles);
       const combinedData: ActionData | null = this.combineCallsJsonFiles(sortedFiles, folderPath);
       this.setSessionPanelTitle(sortedFiles.length, combinedData);
 
