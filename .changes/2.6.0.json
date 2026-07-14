@@ -1,0 +1,10 @@
+{
+  "version": "2.6.0",
+  "date": "2026-07-14",
+  "changes": [
+    {
+      "type": "Fixed",
+      "description": "Added support for new session log formats for Nova Act SDK >=3.3.35 in the Action Viewer"
+    }
+  ]
+}
