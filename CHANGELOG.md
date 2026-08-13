@@ -2,6 +2,12 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.7.0] - 2026-08-13
+
+### Changed
+
+- Release 2.7.0 - see commit history for detailed changes
+
 ## [2.6.0] - 2026-07-14
 
 ### Fixed
