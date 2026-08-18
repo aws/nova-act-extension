@@ -1,11 +1,10 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import fs from 'fs';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
 
 import logger from '../utils/logger';
 import {
-  PLATFORM,
   VENV_DIR,
   checkPip,
   checkPython,
@@ -14,7 +13,7 @@ import {
   showError,
 } from '../utils/pythonUtils';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 export async function updateOrInstallWheelCmd(): Promise<void> {
   return await vscode.window.withProgress(
@@ -42,7 +41,7 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
         try {
           if (!fs.existsSync(VENV_DIR)) {
             progress.report({ message: '🏗️ Creating virtual environment...' });
-            await execAsync(`"${pythonPath}" -m venv "${VENV_DIR}"`);
+            await execFileAsync(pythonPath, ['-m', 'venv', VENV_DIR]);
             progress.report({ increment: 10, message: '✅ Virtual environment created' });
           } else {
             progress.report({ increment: 10, message: '✅ Virtual environment exists' });
@@ -69,38 +68,29 @@ export async function updateOrInstallWheelCmd(): Promise<void> {
 
         // Step 5: Install websockets
         progress.report({ message: '🔌 Installing websockets...' });
-        await execAsync(`"${venvPythonPath}" -m pip install websockets --upgrade`);
+        await execFileAsync(venvPythonPath, ['-m', 'pip', 'install', 'websockets', '--upgrade']);
         progress.report({ increment: 5, message: '🔌 Websockets installed' });
 
         // Step 5.5: Install botocore[crt] for AWS login support
         progress.report({ message: '🔐 Installing AWS CRT for login support...' });
-        await execAsync(`"${venvPythonPath}" -m pip install "botocore[crt]" --upgrade`);
+        await execFileAsync(venvPythonPath, ['-m', 'pip', 'install', 'botocore[crt]', '--upgrade']);
         progress.report({ increment: 5, message: '🔐 AWS CRT installed' });
 
         // Step 6: Install Playwright
         progress.report({ message: '🌐 Installing Playwright...' });
-        let installCmd = `"${venvPythonPath}" -m playwright install chromium`;
+        const playwrightArgs = ['-m', 'playwright', 'install', 'chromium'];
 
         // Only use --with-deps if Ubuntu/Debian
         if (fs.existsSync('/etc/debian_version')) {
-          installCmd = `"${venvPythonPath}" -m playwright install --with-deps chromium`;
+          playwrightArgs.splice(3, 0, '--with-deps');
         }
-        await execAsync(installCmd);
+        await execFileAsync(venvPythonPath, playwrightArgs);
 
         progress.report({ increment: 10, message: '🎭 Playwright installed' });
 
         // Step 7: Finalize setup
         progress.report({ increment: 5, message: '⚙️ Finalizing setup...' });
-        try {
-          if (PLATFORM === 'darwin' || PLATFORM === 'linux') {
-            await execAsync(`export NOVA_ACT_PLAYWRIGHT_INSTALL=1`);
-          } else if (PLATFORM === 'win32') {
-            process.env.NOVA_ACT_PLAYWRIGHT_INSTALL = '1';
-          }
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          showError(errorMessage);
-        }
+        process.env.NOVA_ACT_PLAYWRIGHT_INSTALL = '1';
 
         progress.report({ increment: 100, message: '🎉 Setup complete!' });
 
@@ -128,9 +118,15 @@ async function installNovaActFromPyPI(
   logger.log('Attempting to install nova_act[cli] from PyPI');
 
   try {
-    await execAsync(
-      `"${venvPythonPath}" -m pip install "nova_act[cli]>=3.0.5.0" "boto3>=1.42.1" "botocore>=1.42.1" --upgrade`
-    );
+    await execFileAsync(venvPythonPath, [
+      '-m',
+      'pip',
+      'install',
+      'nova_act[cli]>=3.0.5.0',
+      'boto3>=1.42.1',
+      'botocore>=1.42.1',
+      '--upgrade',
+    ]);
     logger.log('Successfully installed nova_act[cli]');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -138,9 +134,15 @@ async function installNovaActFromPyPI(
     logger.log('Falling back to nova_act without [cli] extra');
     progress.report({ message: '⚠️ Retrying without CLI extras...' });
 
-    await execAsync(
-      `"${venvPythonPath}" -m pip install "nova_act>=3.0.5.0" "boto3>=1.42.1" "botocore>=1.42.1" --upgrade`
-    );
+    await execFileAsync(venvPythonPath, [
+      '-m',
+      'pip',
+      'install',
+      'nova_act>=3.0.5.0',
+      'boto3>=1.42.1',
+      'botocore>=1.42.1',
+      '--upgrade',
+    ]);
     logger.log('Successfully installed nova_act (base package)');
   }
 }

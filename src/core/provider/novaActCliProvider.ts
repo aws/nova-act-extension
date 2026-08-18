@@ -217,25 +217,44 @@ export class NovaActCliProvider {
     }
   }
 
+  private static readonly WORKFLOW_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,40}$/;
+  private static readonly REGION_PATTERN = /^[a-z0-9-]{1,32}$/;
+
+  private static assertValidWorkflowName(name: string): void {
+    if (!NovaActCliProvider.WORKFLOW_NAME_PATTERN.test(name)) {
+      throw new Error(
+        `Invalid workflow name "${name}". Names must be 1-40 characters of letters, numbers, hyphens, or underscores.`
+      );
+    }
+  }
+
+  private static assertValidRegion(region: string): void {
+    if (!NovaActCliProvider.REGION_PATTERN.test(region)) {
+      throw new Error(
+        `Invalid region "${region}". Regions must be lowercase letters, numbers, or hyphens.`
+      );
+    }
+  }
+
   async validateDocker(): Promise<boolean> {
-    return await this.validateCommand('docker --version');
+    return await this.validateCommand('docker', ['--version']);
   }
 
   async validateCli(cliPath?: string): Promise<boolean> {
     const pathToValidate = cliPath || this.novaActPath;
     if (!pathToValidate) return false;
-    return await this.validateCommand(`"${pathToValidate}" --version`);
+    return await this.validateCommand(pathToValidate, ['--version']);
   }
 
-  private async validateCommand(command: string): Promise<boolean> {
+  private async validateCommand(file: string, args: string[]): Promise<boolean> {
     return new Promise((resolve) => {
-      cp.exec(command, { timeout: 10000 }, (error, _stdout, _stderr) => {
+      cp.execFile(file, args, { timeout: 10000 }, (error, _stdout, _stderr) => {
         resolve(!error);
       });
     });
   }
 
-  async executeNovaActCommand(args: string, webview?: vscode.Webview): Promise<string> {
+  async executeNovaActCommand(args: string[], webview?: vscode.Webview): Promise<string> {
     if (this.isDisposed) {
       throw new Error('NovaActCliProvider has been disposed');
     }
@@ -246,11 +265,11 @@ export class NovaActCliProvider {
       );
     }
 
+    const novaActPath = this.novaActPath;
+
     return new Promise(async (resolve, reject) => {
       const OPERATION_TIMEOUT_MS = 86400000; // 24 hours
       const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // 10MB
-
-      const command = `${this.novaActPath} ${args}`;
 
       const enhancedEnv = { ...process.env };
       const dockerPaths = ['/usr/local/bin', '/opt/homebrew/bin', '/usr/bin'];
@@ -261,13 +280,13 @@ export class NovaActCliProvider {
       const novaActEnv = await this.createEnhancedEnvironment();
       Object.assign(enhancedEnv, novaActEnv);
 
-      logger.debug(`Executing command: ${command}`);
+      logger.debug(`Executing command: ${novaActPath} ${args.join(' ')}`);
 
       let stdout = '';
       let stderr = '';
 
-      const child = cp.spawn(command, [], {
-        shell: true,
+      const child = cp.spawn(novaActPath, args, {
+        shell: false,
         stdio: 'pipe',
         env: enhancedEnv,
       });
@@ -366,17 +385,26 @@ export class NovaActCliProvider {
     remoteBuild?: boolean
   ): Promise<string> {
     try {
-      let command = `workflow deploy --name "${name}" --source-dir "${workflowDir}" --region "${region}"`;
+      NovaActCliProvider.assertValidWorkflowName(name);
+      NovaActCliProvider.assertValidRegion(region);
+
+      const args = [
+        'workflow',
+        'deploy',
+        `--name=${name}`,
+        `--source-dir=${workflowDir}`,
+        `--region=${region}`,
+      ];
 
       if (executionRoleArn) {
-        command += ` --execution-role-arn "${executionRoleArn}"`;
+        args.push(`--execution-role-arn=${executionRoleArn}`);
       }
 
       if (remoteBuild) {
-        command += ' --remote-build';
+        args.push('--remote-build');
       }
 
-      return await this.executeNovaActCommand(command, webview);
+      return await this.executeNovaActCommand(args, webview);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const fullError = `Failed to deploy workflow "${name}" to region ${region}: ${errorMessage}`;
@@ -388,7 +416,8 @@ export class NovaActCliProvider {
 
   async createWorkflow(name: string, webview: vscode.Webview): Promise<void> {
     try {
-      await this.executeNovaActCommand(`workflow create --name "${name}"`, webview);
+      NovaActCliProvider.assertValidWorkflowName(name);
+      await this.executeNovaActCommand(['workflow', 'create', `--name=${name}`], webview);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const fullError = `Failed to create workflow "${name}": ${errorMessage}`;
@@ -470,6 +499,7 @@ export class NovaActCliProvider {
       if (!workflowName) {
         throw new Error('No workflow name provided');
       }
+      NovaActCliProvider.assertValidWorkflowName(workflowName);
 
       // Initialize buffer and tracking
       this.executionBuffers.set(workflowName, '');
@@ -478,8 +508,17 @@ export class NovaActCliProvider {
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       const workingDirectory = workspaceFolder ? workspaceFolder.uri.fsPath : process.cwd();
 
-      const command = `${this.novaActPath} workflow run --name "${workflowName}" --payload '${message.payload}' --tail-logs`;
-      logger.debug(`Executing command: ${command} in directory: ${workingDirectory}`);
+      const novaActPath = this.novaActPath;
+      const runArgs = [
+        'workflow',
+        'run',
+        `--name=${workflowName}`,
+        `--payload=${message.payload}`,
+        '--tail-logs',
+      ];
+      logger.debug(
+        `Executing command: ${novaActPath} ${runArgs.join(' ')} in directory: ${workingDirectory}`
+      );
 
       await new Promise<void>((resolve, reject) => {
         const OPERATION_TIMEOUT_MS = 86400000; // 24 hours
@@ -493,8 +532,8 @@ export class NovaActCliProvider {
           ...(profile && { AWS_PROFILE: profile }),
         };
 
-        const child = cp.spawn(command, [], {
-          shell: true,
+        const child = cp.spawn(novaActPath, runArgs, {
+          shell: false,
           stdio: 'pipe',
           env: runEnv,
           cwd: workingDirectory,
@@ -673,8 +712,8 @@ export class NovaActCliProvider {
       throw new Error('Nova Act CLI not found');
     }
 
-    const command = `workflow list --region ${region}`;
-    const output = await this.executeNovaActCommand(command);
+    NovaActCliProvider.assertValidRegion(region);
+    const output = await this.executeNovaActCommand(['workflow', 'list', `--region=${region}`]);
 
     // Parse CLI output - format is typically:
     // Workflows:

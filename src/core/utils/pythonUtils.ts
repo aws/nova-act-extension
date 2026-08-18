@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
@@ -7,7 +7,7 @@ import which from 'which';
 
 import logger from './logger';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 // Directory for Nova Act virtual environment
 export const VENV_DIR = path.join(os.homedir(), '.nova-act-env');
@@ -21,7 +21,7 @@ export const PLATFORM = os.platform();
  */
 async function isPythonVersionUsable(pythonPath: string): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(`"${pythonPath}" --version`);
+    const { stdout } = await execFileAsync(pythonPath, ['--version']);
     if (!stdout) {
       return false;
     }
@@ -91,7 +91,7 @@ export async function checkPython(): Promise<string> {
  */
 export async function checkPip(pythonPath: string) {
   try {
-    const { stdout } = await execAsync(`"${pythonPath}" -m pip --version`);
+    const { stdout } = await execFileAsync(pythonPath, ['-m', 'pip', '--version']);
     if (!stdout.toLowerCase().includes('pip')) {
       const error = 'pip module not found in Python.';
       showError(error);
@@ -113,7 +113,7 @@ export async function getNovaActVersion(): Promise<string | undefined> {
   }
 
   try {
-    const { stdout } = await execAsync(`"${venvPythonPath}" -m pip show nova_act`);
+    const { stdout } = await execFileAsync(venvPythonPath, ['-m', 'pip', 'show', 'nova_act']);
     const versionLine = stdout.split('\n').find((line) => line.trim().startsWith('Version:'));
 
     return versionLine ? versionLine.replace('Version:', '').trim() : undefined;
