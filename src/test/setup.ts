@@ -25,10 +25,26 @@ interface MockVsCode {
     createOutputChannel: (name: string) => {
       write: (value: string) => void;
       writeln: (value: string) => void;
+      appendLine: (value: string) => void;
       show: () => void;
       hide: () => void;
       dispose: () => void;
     };
+    showErrorMessage: (message: string) => Promise<string | undefined>;
+    showInformationMessage: (message: string) => Promise<string | undefined>;
+    showWarningMessage: (message: string) => Promise<string | undefined>;
+  };
+  workspace: {
+    getConfiguration: (section?: string) => { get: (key: string) => unknown };
+    workspaceFolders: undefined;
+  };
+  ExtensionMode: { Production: number; Development: number; Test: number };
+  Uri: {
+    joinPath: (base: { path: string }, ...segments: string[]) => { path: string };
+  };
+  commands: {
+    registerCommand: () => { dispose: () => void };
+    executeCommand: () => Promise<unknown>;
   };
 }
 
@@ -55,10 +71,42 @@ const mockVscode: MockVsCode = {
       writeln: (_value: string) => {
         // Mock implementation - no output in tests
       },
+      appendLine: (_value: string) => {
+        // Mock implementation - no output in tests
+      },
       show: () => {},
       hide: () => {},
       dispose: () => {},
     }),
+    showErrorMessage: (_message: string) => Promise.resolve(undefined),
+    showInformationMessage: (_message: string) => Promise.resolve(undefined),
+    showWarningMessage: (_message: string) => Promise.resolve(undefined),
+  },
+  // Enough of the workspace API for provider tests to construct/run without throwing.
+  // Values come from a global override map so tests can inject settings, e.g.
+  // (global as any).__mockConfig = { 'python.defaultInterpreterPath': '...' };
+  workspace: {
+    getConfiguration: (section?: string) => ({
+      get: (key: string) => {
+        const overrides =
+          (global as unknown as { __mockConfig?: Record<string, unknown> }).__mockConfig || {};
+        const scoped = section ? `${section}.${key}` : key;
+        return overrides[scoped];
+      },
+    }),
+    workspaceFolders: undefined,
+  },
+  // logger.debug gates on this; without it `vscode.ExtensionMode.Development` throws.
+  ExtensionMode: { Production: 1, Development: 2, Test: 3 },
+  // Enough of Uri for webview pages that resolve bundle paths under the extension root.
+  Uri: {
+    joinPath: (base: { path: string }, ...segments: string[]) => ({
+      path: [base.path, ...segments].join('/'),
+    }),
+  },
+  commands: {
+    registerCommand: () => ({ dispose: () => {} }),
+    executeCommand: () => Promise.resolve(undefined),
   },
 };
 

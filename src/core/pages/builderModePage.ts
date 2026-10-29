@@ -20,7 +20,9 @@ export function _getBuilderModeWebviewContent(
       'https://chrome-devtools-frontend.appspot.com',
       webview.cspSource,
       'https://unpkg.com', // Monaco Editor CDN
-      "'unsafe-eval'", // Required for Monaco and React dev mode
+      // Dev only: eval source maps and React Refresh. Monaco loads its cross-origin unpkg
+      // scripts with script tags and importScripts, so production does not need eval.
+      isDevelopment && "'unsafe-eval'",
       "'unsafe-inline'", // Required for inline scripts
       isDevelopment && 'http://localhost:3000', // Dev server bundle
     ],

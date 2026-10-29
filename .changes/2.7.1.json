@@ -1,0 +1,18 @@
+{
+  "version": "2.7.1",
+  "date": "2026-10-29",
+  "changes": [
+    {
+      "type": "Security",
+      "description": "Builder Mode no longer allows 'unsafe-eval' in its Content Security Policy in production builds"
+    },
+    {
+      "type": "Changed",
+      "description": "Added tests for CLI argument validation and the Builder Mode Content Security Policy"
+    },
+    {
+      "type": "Removed",
+      "description": "Removed an unused Builder Mode browser panel component"
+    }
+  ]
+}
