@@ -2,6 +2,20 @@
 
 All notable changes to the Nova Act extension will be documented in this file.
 
+## [2.7.1] - 2026-10-29
+
+### Changed
+
+- Added tests for CLI argument validation and the Builder Mode Content Security Policy
+
+### Removed
+
+- Removed an unused Builder Mode browser panel component
+
+### Security
+
+- Builder Mode no longer allows 'unsafe-eval' in its Content Security Policy in production builds
+
 ## [2.7.0] - 2026-08-18
 
 ### Changed
